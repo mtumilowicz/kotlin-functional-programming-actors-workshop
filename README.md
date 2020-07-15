@@ -1,5 +1,7 @@
 # kotlin-functional-programming-actors-workshop
 * joy of kotlin
+* https://bezkoder.com/kotlin-priority-queue/
+* https://github.com/pysaumont/fpinkotlin
 
 # Sharing mutable states with actors
 * Passing the state as part of a function parameter and returning a new (immutable) state
