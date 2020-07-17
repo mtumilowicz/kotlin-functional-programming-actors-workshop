@@ -1,7 +1,5 @@
 package pingpong
 
-import actor.AbstractActor
-import actor.Actor
 import java.util.concurrent.Semaphore
 
 private val semaphore = Semaphore(1)

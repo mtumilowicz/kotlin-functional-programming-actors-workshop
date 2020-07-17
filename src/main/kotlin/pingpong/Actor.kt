@@ -1,4 +1,4 @@
-package actor
+package pingpong
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -34,9 +34,11 @@ class DaemonThreadFactory : ThreadFactory {
 
 abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
 
-    override val context: ActorContext<T> = object: ActorContext<T> {
+    override val context: ActorContext<T> = object:
+        ActorContext<T> {
 
-        var behavior: MessageProcessor<T> = object: MessageProcessor<T> {
+        var behavior: MessageProcessor<T> = object:
+            MessageProcessor<T> {
 
             override fun process(message: T, sender: Result<Actor<T>>) {
                 onReceive(message, sender)
