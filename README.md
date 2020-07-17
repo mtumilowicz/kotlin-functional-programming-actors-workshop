@@ -159,4 +159,13 @@
 * As you can see, this actor is stateless. 
     * It computes the result and sends it back to the sender to which it has received a reference.
     * This might be a different actor than the caller
-* 
+
+* The main use of actors isn’t for parallelization, but for the abstraction of sharing a
+mutable state. 
+    * In these examples, you used lists that were shared between tasks. 
+    * Without actors, you’d have had to synchronize access to the workList and resultHeap to
+    handle concurrency
+    * Actors allow you to abstract synchronization and mutation in the framework.
+    * actors provide a good way to make functional parts of your code work together,
+      sharing mutable state in an abstracted manner
+    
