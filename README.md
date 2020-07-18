@@ -24,43 +24,22 @@
     * example: actor framework
     
 # actor model
-* In the actor model, a multithreaded application is divided into single-threaded com-
-  ponents, called actors. 
-  * If each actor is single-threaded, it doesn’t need to share data
-  using locks or synchronization.
-  * Actors communicate with other actors by way of effects, as if such communication
-    were the I/O of messages
-  * actors rely on a mechanism for serializing
-    the messages they receive
-    * serialization means handling one message after the
-      other
-  * Due to this mechanism, actors
-    can process messages one at a time without having to bother about concurrent access
-    to their internal resources
-* an actor system can be seen as a series of func-
-  tional programs communicating with each other through effects
-  * Each actor can be
-    single-threaded, so there’s no concurrent access to resources inside. 
-    * Concurrency is abstracted inside the framework.
-* Understanding asynchronous messaging
-    * As part of the message processing, actors can send messages to other actors
-    * Messages
-      are sent
-      asynchronously, which means an actor doesn’t need to wait for an answer—there
-      isn’t one
-    * As soon as a message is sent, the sender can continue its job, which mostly
-      consists of processing one at a time a queue of messages it receives
-* Handling parallelization
-    * actor model allows tasks to be parallelized by using a manager actor that’s respon-
-      sible for breaking the task into subtasks and distributing them to a number of worker
-      actors
-    * Each time a worker actor returns a result to the manager, it’s given a new sub-
-      task
-    * This model offers an advantage over other parallelization models in that no worker actor 
-    is ever idle until the list of subtasks is empty
-    * For some tasks, the results of the subtasks may need to be reordered when they’re received. 
-        * In such a case, the manager actor will probably send the results to a specific actor 
-        responsible for this job
+* in the actor model, a multithreaded application is divided into single-threaded components, called actors 
+    * since each actor is single-threaded, it doesn’t need to share data using locks
+    * actors communicate with other actors by way of effects
+        * as if such communication were the I/O of messages
+        * messages are sent asynchronously (no need to wait for an answer — there isn’t one)
+    * actors process messages one at a time 
+        * no concurrent access to their internal resources
+* an actor system can be seen as a series of functional programs communicating with each other 
+through effects
+* actor model allows tasks to be parallelized by using a manager actor
+    * breaks the task into subtasks
+    * distributes them to worker actors
+    * no worker actor is ever idle until the list of subtasks is empty
+        * if worker actor returns a result - it’s given a new subtask
+* for some tasks, the results of the subtasks may need to be reordered
+    * the manager actor will probably send the results to a specific actor responsible for rearrangement
 * Handling actor state mutation
     * Actors
       can be stateless (immutable) or stateful, meaning they’re supposed to change
