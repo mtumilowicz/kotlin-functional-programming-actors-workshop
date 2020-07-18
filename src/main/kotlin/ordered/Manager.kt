@@ -1,7 +1,5 @@
 package ordered
 
-import common.Result
-
 class Manager(
     id: String, list: List<Int>,
     private val client: Actor<List<Int>>,

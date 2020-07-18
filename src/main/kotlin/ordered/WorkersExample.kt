@@ -1,6 +1,5 @@
 package ordered
 
-import common.Result
 import java.util.concurrent.Semaphore
 
 
