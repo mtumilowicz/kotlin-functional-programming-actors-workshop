@@ -1,30 +1,28 @@
 # kotlin-functional-programming-actors-workshop
-* joy of kotlin
-* https://bezkoder.com/kotlin-priority-queue/
+* https://www.manning.com/books/the-joy-of-kotlin
 * https://github.com/pysaumont/fpinkotlin
 
-# Sharing mutable states with actors
-* Passing the state as part of a function parameter and returning a new (immutable) state
-  as part of the result (in the form of a pair containing both the result and the new state)
-  is perfectly fine when dealing with a single thread
-    * But as long as you need to share
-      state mutation between threads, which is pretty much always the case in modern appli-
-      cations, immutable data structures don’t help
-    * to share this kind of data, one needs a
-      mutable reference to it so that the new immutable data can replace the previous one
-* This is the same as living on a desert island. If you’re the only inhabitant,
-  there’s no need for locks on your doors. 
-  * But in a multithreaded program, how can you
-  increment the counter in a safe way, avoiding concurrent access?
-  * The answer is gener-
-    ally to use locks or to make operations atomic, or both
-* In functional programming, sharing resources has to be done as an effect, which
-  means, more or less, that each time you access a shared resource, you have to leave func-
-  tional safety and treat this access as you did for input/output (I/O)
-  * Sharing a mutable state can be abstracted in such a way that
-    you can use it without bothering about the details. 
-    * One way to achieve this is to use an
-    actor framework.
+# sharing mutable state
+* general solution: remove state mutation
+* single thread environment
+    * `function(oldState) returns (newState, result)`
+* multithreaded environment
+    * immutable data structures don’t help
+    * needs: mutable reference so that the new immutable data can replace the previous one
+* example
+    * in a multithreaded program, how can you increment the counter in a safe way, avoiding 
+    concurrent access?
+        * use locks or make operations atomic, or both
+        * simple analogy
+            * living on a desert island
+            * if you’re the only inhabitant, there’s no need for locks on your doors
+* in functional programming - sharing resources has to be done as an effect
+    * every access to that resources treat as input/output (I/O)
+* sharing a mutable should be abstracted
+    * common technique: side effects as an implementation detail for a purely functional API
+        * side effects are not observable to code
+    * example: actor framework
+    
 # actor model
 * In the actor model, a multithreaded application is divided into single-threaded com-
   ponents, called actors. 
@@ -168,4 +166,14 @@ mutable state.
     * Actors allow you to abstract synchronization and mutation in the framework.
     * actors provide a good way to make functional parts of your code work together,
       sharing mutable state in an abstracted manner
+* An
+  Actor is essentially a concurrent process that doesn’t constantly occupy a thread
+  * it only occupies a thread when it receives a message
+  * although
+    multiple threads may be concurrently sending messages to an actor, the actor pro-
+    cesses only one message at a time, queueing other messages for subsequent process-
+    ing
+* The main trickiness in an actor implementation has to do with the fact that multiple threads may be messag-
+  ing the actor simultaneously. The implementation needs to ensure that messages are processed only one at a
+  time, and also that all messages sent to the actor will be processed eventually rather than queued indefinitely.
     
