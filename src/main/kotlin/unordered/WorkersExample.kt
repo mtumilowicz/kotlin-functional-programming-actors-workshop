@@ -7,7 +7,7 @@ import java.util.concurrent.Semaphore
 
 
 private val semaphore = Semaphore(1)
-private const val listLength = 20_000
+private const val listLength = 20
 private const val workers = 8
 
 private val rnd = java.util.Random(0)
