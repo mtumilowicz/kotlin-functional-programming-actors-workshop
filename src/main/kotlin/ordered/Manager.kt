@@ -1,7 +1,6 @@
 package ordered
 
 import common.Result
-import common.sequence
 
 class Manager(id: String, list: List<Int>,
               private val client: Actor<Result<List<Int>>>,
@@ -35,21 +34,11 @@ class Manager(id: String, list: List<Int>,
 
     fun start() {
         onReceive(Pair(0, 0), self())
-        val xxx: List<Result<() -> Unit>> = initial.map { this.initWorker(it) }
-        val map = xxx.map { x -> x.getOrElse { println("a") } }
-        this.initWorkers(map)
+        initial.map { this.initWorker(it)() }
     }
 
-    private fun initWorker(t: Pair<Int, Int>): Result<() -> Unit> =
-        Result(a = { Worker("Worker " + t.second).tell(Pair(t.first, t.second), self()) })
-
-    private fun initWorkers(lst: List<() -> Unit>) {
-        lst.forEach { it() }
-    }
-
-    private fun tellClientEmptyResult(string: String) {
-        client.tell(Result.failure("$string caused by empty input list."))
-    }
+    private fun initWorker(t: Pair<Int, Int>): () -> Unit =
+        { Worker("Worker " + t.second).tell(Pair(t.first, t.second), self()) }
 
     override fun onReceive(message: Pair<Int, Int>, sender: Result<Actor<Pair<Int, Int>>>) {
         context.become(Behavior(workList, resultHeap))
@@ -64,7 +53,7 @@ class Manager(id: String, list: List<Int>,
                              sender: Result<Actor<Pair<Int, Int>>>) {
             managerFunction(this@Manager)(this@Behavior)(message)
             sender.forEach(onSuccess = { a: Actor<Pair<Int, Int>> ->
-                workList.take(1).forEach({ a.tell(it, self()) })
+                workList.take(1).forEach { a.tell(it, self()) }
             })
         }
     }

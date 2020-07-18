@@ -28,13 +28,6 @@ interface Actor<T> {
     fun tell(message: T, sender: Result<Actor<T>> = self())
 
     fun shutdown()
-
-    fun tell(message: T, sender: Actor<T>) = tell(message, Result(sender))
-
-    companion object {
-
-        fun <T> noSender(): Result<Actor<T>> = Result()
-    }
 }
 
 class DaemonThreadFactory : ThreadFactory {

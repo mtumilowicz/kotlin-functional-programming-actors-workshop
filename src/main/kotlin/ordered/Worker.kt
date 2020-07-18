@@ -21,13 +21,5 @@ class Worker(id: String) : AbstractActor<Pair<Int, Int>>(id) {
         }
         return fibonacci(0, 1, number)
     }
-
-    private fun slowFibonacci(number: Int): Int {
-        return when (number) {
-            0    -> 1
-            1    -> 1
-            else -> slowFibonacci(number - 1) + slowFibonacci(number - 2)
-        }
-    }
 }
 
