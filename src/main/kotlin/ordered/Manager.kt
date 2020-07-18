@@ -64,7 +64,7 @@ class Manager(id: String, list: List<Int>,
                              sender: Result<Actor<Pair<Int, Int>>>) {
             managerFunction(this@Manager)(this@Behavior)(message)
             sender.forEach(onSuccess = { a: Actor<Pair<Int, Int>> ->
-                workList.drop(1).forEach({ a.tell(it, self()) })
+                workList.take(1).forEach({ a.tell(it, self()) })
             })
         }
     }
