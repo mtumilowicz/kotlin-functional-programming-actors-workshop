@@ -12,13 +12,14 @@ class Worker(id: String) : AbstractActor<Pair<Int, Int>>(id) {
         sender.tell(Pair(fibonacci(message.first), message.second), self())
     }
 
-    private fun fibonacci(number: Int): Int {
-        tailrec fun fibonacci(acc1: Int, acc2: Int, x: Int): Int = when (x) {
-            0 -> 1
-            1 -> acc1 + acc2
-            else -> fibonacci(acc2, acc1 + acc2, x - 1)
-        }
-        return fibonacci(0, 1, number)
+    private fun fibonacci(n: Int): Int {
+        tailrec fun fibonacci(prev: Int, next: Int, counter: Int = n): Int =
+            when (counter) {
+                0 -> 1
+                1 -> prev + next
+                else -> fibonacci(next, prev + next, counter - 1)
+            }
+        return fibonacci(0, 1)
     }
 }
 
