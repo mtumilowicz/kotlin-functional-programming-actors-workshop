@@ -63,14 +63,14 @@ sealed class Option<out A> {
     }
 }
 
-val mean: (ListK<Double>) -> Option<Double> = { list ->
+val mean: (List<Double>) -> Option<Double> = { list ->
     when {
         list.isEmpty() -> Option()
         else -> Option(list.sum() / list.length())
     }
 }
 
-val variance: (ListK<Double>) -> Option<Double> = { list ->
+val variance: (List<Double>) -> Option<Double> = { list ->
     mean(list).flatMap { m ->
         mean(list.map{ x ->
             Math.pow((x - m), 2.0)
@@ -78,14 +78,14 @@ val variance: (ListK<Double>) -> Option<Double> = { list ->
     }
 }
 
-fun mean(list: ListK<Double>): Option<Double> =
+fun mean(list: List<Double>): Option<Double> =
     when {
         list.isEmpty() -> Option()
         else -> Option(list.sum() / list.length())
     }
 
 
-fun variance(list: ListK<Double>): Option<Double> =
+fun variance(list: List<Double>): Option<Double> =
     mean(list).flatMap { m ->
         mean(list.map{ x ->
             Math.pow((x - m), 2.0)
@@ -136,16 +136,16 @@ fun <A, B, C, D> map3(oa: Option<A>,
                       f: (A) -> (B) -> (C) -> D): Option<D> =
         oa.flatMap { a -> ob.flatMap { b -> oc.map { c -> f(a)(b)(c) } } }
 
-fun <A, B> traverseOption(list: ListK<A>, f: (A) -> Option<B>): Option<ListK<B>> =
-        list.foldRight(Option(ListK())) { x ->
-            { y: Option<ListK<B>> ->
+fun <A, B> traverseOption(list: List<A> , f: (A) -> Option<B>): Option<List<B>> =
+        list.foldRight(Option(List())) { x ->
+            { y: Option<List<B>> ->
                 map2(f(x), y) { a ->
-                    { b: ListK<B> ->
+                    { b: List<B> ->
                         b.cons(a)
                     }
                 }
             }
         }
 
-fun <A> sequence(list: ListK<Option<A>>): Option<ListK<A>> =
+fun <A> sequence(list: List<Option<A>>): Option<List<A>> =
                             traverseOption(list) { x -> x }

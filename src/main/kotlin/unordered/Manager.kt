@@ -1,23 +1,23 @@
 package unordered
 
-import common.ListK
+import common.List
 import common.Result
 import common.sequence
 
-class Manager(id: String, list: ListK<Int>,
-              private val client: Actor<Result<ListK<Int>>>,
+class Manager(id: String, list: List<Int>,
+              private val client: Actor<Result<List<Int>>>,
               private val workers: Int) : AbstractActor<Int>(id) {
 
-    private val initial: ListK<Pair<Int, Int>>
-    private val workList: ListK<Int>
-    private val resultList: ListK<Int>
+    private val initial: List<Pair<Int, Int>>
+    private val workList: List<Int>
+    private val resultList: List<Int>
     private val managerFunction: (Manager) -> (Behavior) -> (Int) -> Unit
 
     init {
         val splitLists = list.splitAt(this.workers)
         this.initial = splitLists.first.zipWithPosition()
         this.workList = splitLists.second
-        this.resultList = ListK()
+        this.resultList = List()
 
         managerFunction = { manager ->
             { behavior ->
@@ -29,7 +29,7 @@ class Manager(id: String, list: ListK<Int>,
                         manager.context
                             .become(Behavior(behavior.workList
                                                  .tailSafe()
-                                                 .getOrElse(ListK()), result))
+                                                 .getOrElse(List()), result))
                     }
                 }
             }
@@ -50,7 +50,7 @@ class Manager(id: String, list: ListK<Int>,
         return Result ({ Worker("Worker " + t.second).tell(t.first, self()) })
     }
 
-    private fun initWorkers(lst: ListK<() -> Unit>) {
+    private fun initWorkers(lst: List<() -> Unit>) {
         lst.forEach { it() }
     }
 
@@ -62,8 +62,8 @@ class Manager(id: String, list: ListK<Int>,
         context.become(Behavior(workList, resultList))
     }
 
-    internal inner class Behavior internal constructor(internal val workList: ListK<Int>,
-                                                       internal val resultList: ListK<Int>) : MessageProcessor<Int> {
+    internal inner class Behavior internal constructor(internal val workList: List<Int>,
+                         internal val resultList: List<Int>) : MessageProcessor<Int> {
 
         override fun process(message: Int, sender: Result<Actor<Int>>) {
             managerFunction(this@Manager)(this@Behavior)(message)

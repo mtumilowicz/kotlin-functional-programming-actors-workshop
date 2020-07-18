@@ -1,6 +1,6 @@
 package unordered
 
-import common.ListK
+import common.List
 import common.Result
 import common.range
 import java.util.concurrent.Semaphore
@@ -18,9 +18,9 @@ fun main() {
     semaphore.acquire()
     val startTime = System.currentTimeMillis()
     val client =
-        object: AbstractActor<Result<ListK<Int>>>("Client") {
-            override fun onReceive(message: Result<ListK<Int>>,
-                                   sender: Result<Actor<Result<ListK<Int>>>>) {
+        object: AbstractActor<Result<List<Int>>>("Client") {
+            override fun onReceive(message: Result<List<Int>>,
+                                   sender: Result<Actor<Result<List<Int>>>>) {
                 message.forEach({ processSuccess(it) },
                                 { processFailure(it.message ?: "Unknown error") })
                 println("Total time: " + (System.currentTimeMillis() - startTime))
@@ -38,7 +38,7 @@ private fun processFailure(message: String) {
     println(message)
 }
 
-fun processSuccess(lst: ListK<Int>) {
+fun processSuccess(lst: List<Int>) {
     println("Input: ${testList.splitAt(40).first}")
     println("Result: ${lst.splitAt(40).first}")
 }
