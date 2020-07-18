@@ -5,7 +5,8 @@ import core.Actor
 import core.MessageProcessor
 
 class Manager(
-    id: String, list: List<Int>,
+    id: String,
+    list: List<Int>,
     private val client: Actor<List<Int>>,
     private val workers: Int
 ) : AbstractActor<Pair<Int, Int>>(id) {
