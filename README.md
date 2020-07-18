@@ -41,30 +41,29 @@ through effects
 * for some tasks, the results of the subtasks may need to be reordered
     * the manager actor will probably send the results to a specific actor responsible for rearrangement
 * Handling actor state mutation
-    * Actors
-      can be stateless (immutable) or stateful, meaning they’re supposed to change
-      their state according to the messages they receive
-      * For example, a synchronizer actor
-        can receive the results of computations that have to be reordered before being used
-    * Imagine, for example, that you have a list of data that must go through heavy compu-
-      tation in order to provide a list of results
-      * In short, this is a mapping
-      * It could be paral-
-        lelized by breaking the list into several sublists and giving these sublists to worker actors
-        for processing
-      * But there’s no guarantee that the worker actors will finish their jobs in
-        the same order that those jobs were given to them
-    * One solution for resynchronizing the results is to number the tasks. 
-        * When a worker sends back the result, it adds the corresponding task number so that 
-        the receiver can put the results in a priority queue
-        * Not only does this allow automatic sorting, but it
-        also makes it possible to process the results as an asynchronous stream.
-    * Each time the
-      receiver receives a result, it compares the task number to the expected number. If
-      there’s a match, it passes the result to the client and then looks into the priority queue to
-      see if the first available result corresponds to the new expected task number. If there’s a
-      match, the dequeuing process continues until there’s no longer a match. If the received
-      result doesn’t match the expected result number, it’s added to the priority queue.
+    * Actors can be stateless (immutable) or stateful
+        * their state can change according to the messages they receive
+        * example
+            * synchronizer actor reorders results of computations
+    * Imagine, for example, that you have a list of data that must go through heavy computation in order 
+    to provide a list of results
+        * mapping phase: It could be parallelized by breaking the list into several sublists and giving these 
+        sublists to worker actors for processing
+            * no guarantee that the worker actors will finish their jobs in the same order that those 
+            jobs were given to them
+        * solution - number the tasks 
+            * when a worker sends back the result, it adds the corresponding task number
+            * maybe priority queue
+                * automatic sorting
+                * makes possible to process the results as an asynchronous stream
+                    * receiver receives a result, it compares the task number to the expected number
+                        * if match - passes the result to the client and then looks into the priority queue to
+                        see if the first available result corresponds to the new expected task number
+                            * if there’s a match, the dequeuing process continues until there’s no longer 
+                            a match
+                        * if the received result doesn’t match the expected result number, it’s added to 
+                        the priority queue
+
 # actor framework implementation
 * four components:
   * The Actor interface determines the behavior of an actor.
