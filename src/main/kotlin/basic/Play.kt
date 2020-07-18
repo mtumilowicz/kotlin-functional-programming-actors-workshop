@@ -1,4 +1,4 @@
-package pingpong
+package basic
 
 import java.util.concurrent.Semaphore
 

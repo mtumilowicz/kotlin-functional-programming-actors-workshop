@@ -1,4 +1,8 @@
-package ordered
+package advanced
+
+import core.AbstractActor
+import core.Actor
+import core.MessageProcessor
 
 class Manager(
     id: String, list: List<Int>,

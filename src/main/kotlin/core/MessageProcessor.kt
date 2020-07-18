@@ -1,4 +1,4 @@
-package ordered
+package core
 
 interface MessageProcessor<T> {
 

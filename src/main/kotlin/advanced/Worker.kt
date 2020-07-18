@@ -1,4 +1,7 @@
-package ordered
+package advanced
+
+import core.AbstractActor
+import core.Actor
 
 
 class Worker(id: String) : AbstractActor<Pair<Int, Int>>(id) {

@@ -1,5 +1,7 @@
-package ordered
+package advanced
 
+import core.AbstractActor
+import core.Actor
 import java.util.concurrent.Semaphore
 
 
@@ -16,7 +18,8 @@ fun main() {
     val client =
         object: AbstractActor<List<Int>>("Client") {
             override fun onReceive(message: List<Int>,
-                          sender: Actor<List<Int>>) {
+                          sender: Actor<List<Int>>
+            ) {
                 processSuccess(message)
                 println("Total time: " + (System.currentTimeMillis() - startTime))
                 semaphore.release()

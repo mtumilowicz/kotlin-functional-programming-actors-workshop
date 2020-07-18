@@ -1,4 +1,4 @@
-package ordered
+package core
 
 class ActorContext<T>(behavior: MessageProcessor<T>) {
 
