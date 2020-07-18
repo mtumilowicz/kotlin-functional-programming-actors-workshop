@@ -1,18 +1,15 @@
-package unordered
+package ordered
 
-import common.List
 import common.Result
-import common.range
 import java.util.concurrent.Semaphore
 
 
 private val semaphore = Semaphore(1)
-private const val listLength = 20_000
-private const val workers = 8
-
+private const val listLength = 1_000
+private const val workers = 2
 private val rnd = java.util.Random(0)
 private val testList =
-    range(0, listLength).map { rnd.nextInt(35) }
+    (0..listLength).map { rnd.nextInt(35) }
 
 fun main() {
     semaphore.acquire()
@@ -20,7 +17,7 @@ fun main() {
     val client =
         object: AbstractActor<Result<List<Int>>>("Client") {
             override fun onReceive(message: Result<List<Int>>,
-                                   sender: Result<Actor<Result<List<Int>>>>) {
+                          sender: Result<Actor<Result<List<Int>>>>) {
                 message.forEach({ processSuccess(it) },
                                 { processFailure(it.message ?: "Unknown error") })
                 println("Total time: " + (System.currentTimeMillis() - startTime))
@@ -39,6 +36,6 @@ private fun processFailure(message: String) {
 }
 
 fun processSuccess(lst: List<Int>) {
-    println("Input: ${testList.splitAt(40).first}")
-    println("Result: ${lst.splitAt(40).first}")
+    println("Input: ${testList.chunked(40)[0]}")
+    println("Result: ${lst.chunked(40)[0]}")
 }
