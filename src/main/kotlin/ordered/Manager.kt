@@ -1,7 +1,5 @@
 package ordered
 
-import common.Heap
-import common.List
 import common.Result
 import common.sequence
 
@@ -11,26 +9,24 @@ class Manager(id: String, list: List<Int>,
 
     private val initial: List<Pair<Int, Int>>
     private val workList: List<Pair<Int, Int>>
-    private val resultHeap: Heap<Pair<Int, Int>>
+    private val resultHeap: List<Pair<Int, Int>>
     private val managerFunction: (Manager) -> (Behavior) -> (Pair<Int, Int>) -> Unit
 
     init {
-        val splitLists = list.zipWithPosition().splitAt(this.workers)
-        this.initial = splitLists.first
-        this.workList = splitLists.second
-        this.resultHeap = Heap(Comparator { p1: Pair<Int, Int>, p2: Pair<Int, Int> -> p1.second.compareTo(p2.second) })
+        val splitLists = list.zip(0..list.size).chunked(this.workers)
+        this.initial = splitLists[0]
+        this.workList = splitLists.drop(1).flatten()
+        this.resultHeap = listOf()
 
         managerFunction = { manager ->
             { behavior ->
                 { p ->
-                    val result = behavior.resultHeap + p
-                    if (result.size == list.length) {
-                        this.client.tell(Result(result.toList().map { it.first }))
+                    val result: List<Pair<Int, Int>> = behavior.resultHeap + p
+                    if (result.size == list.size) {
+                        this.client.tell(Result(result.sortedBy { it.second }.map { it.first }))
                     } else {
                         manager.context
-                            .become(Behavior(behavior.workList
-                                                 .tailSafe()
-                                                 .getOrElse(List()), result))
+                            .become(Behavior(behavior.workList.drop(1), result))
                     }
                 }
             }
@@ -39,9 +35,9 @@ class Manager(id: String, list: List<Int>,
 
     fun start() {
         onReceive(Pair(0, 0), self())
-        sequence(initial.map { this.initWorker(it) })
-            .forEach({ this.initWorkers(it) },
-                     { this.tellClientEmptyResult(it.message ?: "Unknown error") })
+        val xxx: List<Result<() -> Unit>> = initial.map { this.initWorker(it) }
+        val map = xxx.map { x -> x.getOrElse { println("a") } }
+        this.initWorkers(map)
     }
 
     private fun initWorker(t: Pair<Int, Int>): Result<() -> Unit> =
@@ -61,14 +57,14 @@ class Manager(id: String, list: List<Int>,
 
     internal inner class Behavior
         internal constructor(internal val workList: List<Pair<Int, Int>>,
-                             internal val resultHeap: Heap<Pair<Int, Int>>) :
+                             internal val resultHeap: List<Pair<Int, Int>>) :
         MessageProcessor<Pair<Int, Int>> {
 
         override fun process(message: Pair<Int, Int>,
                              sender: Result<Actor<Pair<Int, Int>>>) {
             managerFunction(this@Manager)(this@Behavior)(message)
             sender.forEach(onSuccess = { a: Actor<Pair<Int, Int>> ->
-                workList.headSafe().forEach({ a.tell(it, self()) }) { a.shutdown() }
+                workList.drop(1).forEach({ a.tell(it, self()) })
             })
         }
     }

@@ -1,8 +1,6 @@
 package ordered
 
-import common.List
 import common.Result
-import common.range
 import java.util.concurrent.Semaphore
 
 
@@ -11,7 +9,7 @@ private const val listLength = 1_000
 private const val workers = 2
 private val rnd = java.util.Random(0)
 private val testList =
-    range(0, listLength).map { rnd.nextInt(35) }
+    (0..listLength).map { rnd.nextInt(35) }
 
 fun main() {
     semaphore.acquire()
@@ -38,6 +36,6 @@ private fun processFailure(message: String) {
 }
 
 fun processSuccess(lst: List<Int>) {
-    println("Input: ${testList.splitAt(40).first}")
-    println("Result: ${lst.splitAt(40).first}")
+    println("Input: ${testList.chunked(40)[0]}")
+    println("Result: ${lst.chunked(40)[0]}")
 }
