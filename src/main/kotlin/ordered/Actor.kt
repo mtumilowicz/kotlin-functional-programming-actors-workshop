@@ -1,6 +1,5 @@
 package ordered
 
-import common.Result
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
@@ -16,16 +15,16 @@ interface ActorContext<T> {
 
 interface MessageProcessor<T> {
 
-    fun process(message: T, sender: Result<Actor<T>>)
+    fun process(message: T, sender: Actor<T>)
 }
 
 interface Actor<T> {
 
     val context: ActorContext<T>
 
-    fun self(): Result<Actor<T>> = Result(this)
+    fun self(): Actor<T> = this
 
-    fun tell(message: T, sender: Result<Actor<T>> = self())
+    fun tell(message: T, sender: Actor<T> = self())
 
     fun shutdown()
 }
@@ -46,7 +45,7 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
 
         var behavior: MessageProcessor<T> = object: MessageProcessor<T> {
 
-            override fun process(message: T, sender: Result<Actor<T>>) {
+            override fun process(message: T, sender: Actor<T>) {
                 onReceive(message, sender)
             }
         }
@@ -62,18 +61,14 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
     private val executor: ExecutorService =
             Executors.newSingleThreadExecutor(DaemonThreadFactory())
 
-    abstract fun onReceive(message: T, sender: Result<Actor<T>>)
-
-    override fun self(): Result<Actor<T>> {
-        return Result(this)
-    }
+    abstract fun onReceive(message: T, sender: Actor<T>)
 
     override fun shutdown() {
         this.executor.shutdown()
     }
 
     @Synchronized
-    override fun tell(message: T, sender: Result<Actor<T>>) {
+    override fun tell(message: T, sender: Actor<T>) {
         executor.execute {
             try {
                 context.behavior().process(message, sender)

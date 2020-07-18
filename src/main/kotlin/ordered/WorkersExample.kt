@@ -15,11 +15,10 @@ fun main() {
     semaphore.acquire()
     val startTime = System.currentTimeMillis()
     val client =
-        object: AbstractActor<Result<List<Int>>>("Client") {
-            override fun onReceive(message: Result<List<Int>>,
-                          sender: Result<Actor<Result<List<Int>>>>) {
-                message.forEach({ processSuccess(it) },
-                                { processFailure(it.message ?: "Unknown error") })
+        object: AbstractActor<List<Int>>("Client") {
+            override fun onReceive(message: List<Int>,
+                          sender: Actor<List<Int>>) {
+                processSuccess(message)
                 println("Total time: " + (System.currentTimeMillis() - startTime))
                 semaphore.release()
             }
@@ -29,10 +28,6 @@ fun main() {
         Manager("Manager", testList, client, workers)
     manager.start()
     semaphore.acquire()
-}
-
-private fun processFailure(message: String) {
-    println(message)
 }
 
 fun processSuccess(lst: List<Int>) {

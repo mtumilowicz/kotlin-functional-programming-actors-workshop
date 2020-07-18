@@ -1,16 +1,13 @@
 package ordered
 
-import common.Result
-
 
 class Worker(id: String) : AbstractActor<Pair<Int, Int>>(id) {
 
-    override fun onReceive(message: Pair<Int, Int>,
-                           sender: Result<Actor<Pair<Int, Int>>>) {
-        sender.forEach (onSuccess = { a: Actor<Pair<Int, Int>> ->
-                    a.tell(Pair(fibonacci(message.first),
-                                message.second) , self())
-                })
+    override fun onReceive(
+        message: Pair<Int, Int>,
+        sender: Actor<Pair<Int, Int>>
+    ) {
+        sender.tell(Pair(fibonacci(message.first), message.second), self())
     }
 
     private fun fibonacci(number: Int): Int {
