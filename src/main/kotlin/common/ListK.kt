@@ -4,28 +4,28 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 
 
-sealed class List<out A> {
+sealed class ListK<out A> {
 
     abstract fun forEach(ef: (A) -> Unit)
 
     abstract fun isEmpty(): Boolean
 
-    abstract fun init(): List<A>
+    abstract fun init(): ListK<A>
 
     abstract val length: Int
 
     abstract fun headSafe(): Result<A>
 
-    abstract fun tailSafe(): Result<List<A>>
+    abstract fun tailSafe(): Result<ListK<A>>
 
     abstract fun <B> foldLeft(identity: B, zero: B,
-                              f: (B) -> (A) -> B): Pair<B, List<A>>
+                              f: (B) -> (A) -> B): Pair<B, ListK<A>>
 
     abstract fun <B> foldLeft(identity: B,
                               p: (B) -> Boolean,
                               f: (B) -> (A) -> B): B
 
-    operator fun plus(a: @UnsafeVariance A): List<A> = cons(a)
+    operator fun plus(a: @UnsafeVariance A): ListK<A> = cons(a)
 
     fun toArrayList(): java.util.ArrayList<@UnsafeVariance A> =
             foldLeft(ArrayList()) { list ->
@@ -35,10 +35,10 @@ sealed class List<out A> {
                 }
             }
 
-    fun zipWithPosition(): List<Pair<A, Int>> =
+    fun zipWithPosition(): ListK<Pair<A, Int>> =
         zipWith(this, range(0, this.length)) { a -> { i: Int -> Pair(a, i) } }
 
-    fun <B> parMap(es: ExecutorService, g: (A) -> B): Result<List<B>> =
+    fun <B> parMap(es: ExecutorService, g: (A) -> B): Result<ListK<B>> =
             try {
                 val result = this.map { x ->
                     es.submit<B> { g(x) }
@@ -61,7 +61,7 @@ sealed class List<out A> {
                         f: (B) -> (A) -> B,
                         m: (B) -> (B) -> B): Result<B> =
             try {
-                val result: List<B> = divide(1024).map { list: List<A> ->
+                val result: ListK<B> = divide(1024).map { list: ListK<A> ->
                     es.submit<B> { list.foldLeft(identity, f) }
                 }.map<B> { fb ->
                             try {
@@ -77,14 +77,14 @@ sealed class List<out A> {
                 Result.failure(e)
             }
 
-    fun splitListAt(index: Int): List<List<A>> {
-        tailrec fun splitListAt(acc: List<A>,
-                                list: List<A>, i: Int): List<List<A>> =
+    fun splitListAt(index: Int): ListK<ListK<A>> {
+        tailrec fun splitListAt(acc: ListK<A>,
+                                list: ListK<A>, i: Int): ListK<ListK<A>> =
                 when (list) {
-                    Nil -> List(list.reverse(), acc)
+                    Nil -> ListK(list.reverse(), acc)
                     is Cons ->
                         if (i == 0)
-                            List(list.reverse(), acc)
+                            ListK(list.reverse(), acc)
                         else
                             splitListAt(acc.cons(list.head), list.tail, i - 1)
                 }
@@ -95,9 +95,9 @@ sealed class List<out A> {
         }
     }
 
-    fun divide(depth: Int): List<List<A>> {
+    fun divide(depth: Int): ListK<ListK<A>> {
         tailrec
-        fun divide(list: List<List<A>>, depth: Int): List<List<A>> =
+        fun divide(list: ListK<ListK<A>>, depth: Int): ListK<ListK<A>> =
                 when (list) {
                     Nil -> list // dead code
                     is Cons ->
@@ -107,9 +107,9 @@ sealed class List<out A> {
                             divide(list.flatMap { x -> x.splitListAt(x.length() / 2) }, depth - 1)
                 }
         return if (this.isEmpty())
-            List(this)
+            ListK(this)
         else
-            divide(List(this), depth)
+            divide(ListK(this), depth)
     }
 
     fun exists(p: (A) -> Boolean): Boolean =
@@ -117,23 +117,23 @@ sealed class List<out A> {
 
     fun forAll(p: (A) -> Boolean): Boolean = !exists { !p(it) }
 
-    fun <B> groupBy(f: (A) -> B): Map<B, List<A>> =
-        reverse().foldLeft(mapOf()) { mt: Map<B, List<A>> ->
+    fun <B> groupBy(f: (A) -> B): Map<B, ListK<A>> =
+        reverse().foldLeft(mapOf()) { mt: Map<B, ListK<A>> ->
             { t ->
                 f(t).let { mt + (it to (mt.getOrDefault(it, Nil)).cons(t)) }
             }
         }
 
-    fun <B> groupByViaFoldRight(f: (A) -> B): Map<B, List<A>> =
+    fun <B> groupByViaFoldRight(f: (A) -> B): Map<B, ListK<A>> =
         foldRight(mapOf()) { t ->
-            {  mt: Map<B, List<A>> ->
+            {  mt: Map<B, ListK<A>> ->
                 f(t).let { mt + (it to (mt.getOrDefault(it, Nil)).cons(t)) }
             }
         }
 
-    fun splitAt(index: Int): Pair<List<A>, List<A>> {
-        tailrec fun splitAt(acc: List<A>,
-                            list: List<A>, i: Int): Pair<List<A>, List<A>> =
+    fun splitAt(index: Int): Pair<ListK<A>, ListK<A>> {
+        tailrec fun splitAt(acc: ListK<A>,
+                            list: ListK<A>, i: Int): Pair<ListK<A>, ListK<A>> =
                 when (list) {
                     Nil -> Pair(list.reverse(), acc)
                     is Cons ->
@@ -181,9 +181,9 @@ sealed class List<out A> {
     }
 
 
-    fun <A1, A2> unzip(f: (A) -> Pair<A1, A2>): Pair<List<A1>, List<A2>> =
+    fun <A1, A2> unzip(f: (A) -> Pair<A1, A2>): Pair<ListK<A1>, ListK<A2>> =
             this.coFoldRight(Pair(Nil, Nil)) { a ->
-                { listPair: Pair<List<A1>, List<A2>> ->
+                { listPair: Pair<ListK<A1>, ListK<A2>> ->
                     f(a).let {
                         Pair(listPair.first.cons(it.first), listPair.second.cons(it.second))
                     }
@@ -197,8 +197,8 @@ sealed class List<out A> {
                 }
             }
 
-    fun startsWith(sub: List<@UnsafeVariance A>): Boolean {
-        tailrec fun startsWith(list: List<A>, sub: List<A>): Boolean =
+    fun startsWith(sub: ListK<@UnsafeVariance A>): Boolean {
+        tailrec fun startsWith(list: ListK<A>, sub: ListK<A>): Boolean =
                 when (sub) {
                     Nil  -> true
                     is Cons -> when (list) {
@@ -213,9 +213,9 @@ sealed class List<out A> {
         return startsWith(this, sub)
     }
 
-    fun hasSubList(sub: List<@UnsafeVariance A>): Boolean {
+    fun hasSubList(sub: ListK<@UnsafeVariance A>): Boolean {
         tailrec
-        fun <A> hasSubList(list: List<A>, sub: List<A>): Boolean =
+        fun <A> hasSubList(list: ListK<A>, sub: ListK<A>): Boolean =
                 when (list) {
                     Nil -> sub.isEmpty()
                     is Cons ->
@@ -227,22 +227,22 @@ sealed class List<out A> {
         return hasSubList(this, sub)
     }
 
-    fun setHead(a: @UnsafeVariance A): List<A> = when (this) {
+    fun setHead(a: @UnsafeVariance A): ListK<A> = when (this) {
         Nil -> throw IllegalStateException("setHead called on an empty list")
         is Cons -> Cons(a, this.tail)
     }
 
-    fun cons(a: @UnsafeVariance A): List<A> = Cons(a, this)
+    fun cons(a: @UnsafeVariance A): ListK<A> = Cons(a, this)
 
-    fun concat(list: List<@UnsafeVariance A>): List<A> = concat(this, list)
+    fun concat(list: ListK<@UnsafeVariance A>): ListK<A> = concat(this, list)
 
-    fun concatViaFoldRight(list: List<@UnsafeVariance A>): List<A> = List.concatViaFoldRight(this, list)
+    fun concatViaFoldRight(list: ListK<@UnsafeVariance A>): ListK<A> = ListK.concatViaFoldRight(this, list)
 
-    fun drop(n: Int): List<A> = drop(this, n)
+    fun drop(n: Int): ListK<A> = drop(this, n)
 
-    fun dropWhile(p: (A) -> Boolean): List<A> = dropWhile(this, p)
+    fun dropWhile(p: (A) -> Boolean): ListK<A> = dropWhile(this, p)
 
-    fun reverse(): List<A> = foldLeft(Nil as List<A>) { acc -> { acc.cons(it) } }
+    fun reverse(): ListK<A> = foldLeft(Nil as ListK<A>) { acc -> { acc.cons(it) } }
 
     fun <B> foldRight(identity: B, f: (A) -> (B) -> B): B = foldRight(this, identity, f)
 
@@ -255,28 +255,28 @@ sealed class List<out A> {
 
     fun <B> coFoldRight(identity: B, f: (A) -> (B) -> B): B = coFoldRight(identity, this.reverse(), identity, f)
 
-    fun <B> map(f: (A) -> B): List<B> = foldLeft(Nil) { acc: List<B> -> { h: A -> Cons(f(h), acc) } }.reverse()
+    fun <B> map(f: (A) -> B): ListK<B> = foldLeft(Nil) { acc: ListK<B> -> { h: A -> Cons(f(h), acc) } }.reverse()
 
-    fun <B> flatMap(f: (A) -> List<B>): List<B> = flatten(map(f))
+    fun <B> flatMap(f: (A) -> ListK<B>): ListK<B> = flatten(map(f))
 
-    fun filter(p: (A) -> Boolean): List<A> = flatMap { a -> if (p(a)) List(a) else Nil }
+    fun filter(p: (A) -> Boolean): ListK<A> = flatMap { a -> if (p(a)) ListK(a) else Nil }
 
-    internal object Nil: List<Nothing>() {
+    internal object Nil: ListK<Nothing>() {
 
         override fun <B> foldLeft(identity: B, p: (B) -> Boolean, f: (B) -> (Nothing) -> B): B = identity
 
-        override fun tailSafe(): Result<List<Nothing>> = Result.Empty
+        override fun tailSafe(): Result<ListK<Nothing>> = Result.Empty
 
         override fun forEach(ef: (Nothing) -> Unit) {}
 
         override fun <B> foldLeft(identity: B, zero: B, f: (B) -> (Nothing) -> B):
-                Pair<B, List<Nothing>> = Pair(identity, Nil)
+                Pair<B, ListK<Nothing>> = Pair(identity, Nil)
 
         override fun headSafe(): Result<Nothing> = Result()
 
         override val length = 0
 
-        override fun init(): List<Nothing> = throw IllegalStateException("init called on an empty list")
+        override fun init(): ListK<Nothing> = throw IllegalStateException("init called on an empty list")
 
         override fun isEmpty() = true
 
@@ -284,12 +284,12 @@ sealed class List<out A> {
     }
 
     internal class Cons<out A>(internal val head: A,
-                               internal val tail: List<A>): List<A>() {
+                               internal val tail: ListK<A>): ListK<A>() {
 
-        override fun tailSafe(): Result<List<A>> = Result(tail)
+        override fun tailSafe(): Result<ListK<A>> = Result(tail)
 
         override fun forEach(ef: (A) -> Unit) {
-            tailrec fun forEach(list: List<A>) {
+            tailrec fun forEach(list: ListK<A>) {
                 when (list) {
                     Nil -> {}
                     is Cons -> {
@@ -302,7 +302,7 @@ sealed class List<out A> {
         }
 
         override fun <B> foldLeft(identity: B, p: (B) -> Boolean, f: (B) -> (A) -> B): B {
-            fun foldLeft(acc: B, list: List<A>): B = when (list) {
+            fun foldLeft(acc: B, list: ListK<A>): B = when (list) {
                 Nil -> acc
                 is Cons ->
                     if (p(acc))
@@ -313,8 +313,8 @@ sealed class List<out A> {
             return foldLeft(identity, this)
         }
 
-        override fun <B> foldLeft(identity: B, zero: B, f: (B) -> (A) -> B): Pair<B, List<A>> {
-            tailrec fun <B> foldLeft(acc: B, zero: B, list: List<A>, f: (B) -> (A) -> B): Pair<B, List<A>> = when (list) {
+        override fun <B> foldLeft(identity: B, zero: B, f: (B) -> (A) -> B): Pair<B, ListK<A>> {
+            tailrec fun <B> foldLeft(acc: B, zero: B, list: ListK<A>, f: (B) -> (A) -> B): Pair<B, ListK<A>> = when (list) {
                 Nil -> Pair(acc, list)
                 is Cons ->
                     if (acc == zero)
@@ -329,13 +329,13 @@ sealed class List<out A> {
 
         override val length = tail.length + 1
 
-        override fun init(): List<A> = reverse().drop(1).reverse()
+        override fun init(): ListK<A> = reverse().drop(1).reverse()
 
         override fun isEmpty() = false
 
         override fun toString(): String = "[${toString("", this)}NIL]"
 
-        private tailrec fun toString(acc: String, list: List<A>): String = when (list) {
+        private tailrec fun toString(acc: String, list: ListK<A>): String = when (list) {
             Nil  -> acc
             is Cons -> toString("$acc${list.head}, ", list.tail)
         }
@@ -343,125 +343,125 @@ sealed class List<out A> {
 
     companion object {
 
-        fun <A> cons(a: A, list: List<A>): List<A> = Cons(a, list)
+        fun <A> cons(a: A, list: ListK<A>): ListK<A> = Cons(a, list)
 
-        tailrec fun <A> drop(list: List<A>, n: Int): List<A> = when (list) {
+        tailrec fun <A> drop(list: ListK<A>, n: Int): ListK<A> = when (list) {
             Nil -> list
             is Cons -> if (n <= 0) list else drop(list.tail, n - 1)
         }
 
-        tailrec fun <A> dropWhile(list: List<A>, p: (A) -> Boolean): List<A> = when (list) {
+        tailrec fun <A> dropWhile(list: ListK<A>, p: (A) -> Boolean): ListK<A> = when (list) {
             Nil -> list
             is Cons -> if (p(list.head)) dropWhile(list.tail, p) else list
         }
 
-        fun <A> concat(list1: List<A>, list2: List<A>): List<A> = list1.reverse().foldLeft(list2) { x -> x::cons }
+        fun <A> concat(list1: ListK<A>, list2: ListK<A>): ListK<A> = list1.reverse().foldLeft(list2) { x -> x::cons }
 
-        fun <A> concatViaFoldRight(list1: List<A>, list2: List<A>): List<A> = foldRight(list1, list2) { x -> { y -> Cons(x, y) } }
+        fun <A> concatViaFoldRight(list1: ListK<A>, list2: ListK<A>): ListK<A> = foldRight(list1, list2) { x -> { y -> Cons(x, y) } }
 
-        fun <A, B> foldRight(list: List<A>, identity: B, f: (A) -> (B) -> B): B =
+        fun <A, B> foldRight(list: ListK<A>, identity: B, f: (A) -> (B) -> B): B =
                 when (list) {
                     Nil -> identity
                     is Cons -> f(list.head)(foldRight(list.tail, identity, f))
                 }
 
-        tailrec fun <A, B> foldLeft(acc: B, list: List<A>, f: (B) -> (A) -> B): B =
+        tailrec fun <A, B> foldLeft(acc: B, list: ListK<A>, f: (B) -> (A) -> B): B =
                 when (list) {
                     Nil -> acc
                     is Cons -> foldLeft(f(acc)(list.head), list.tail, f)
                 }
 
-        tailrec fun <A, B> coFoldRight(acc: B, list: List<A>, identity: B, f: (A) -> (B) -> B): B =
+        tailrec fun <A, B> coFoldRight(acc: B, list: ListK<A>, identity: B, f: (A) -> (B) -> B): B =
                 when (list) {
                     Nil -> acc
                     is Cons -> coFoldRight(f(list.head)(acc), list.tail, identity, f)
                 }
 
 
-        operator fun <A> invoke(vararg az: A): List<A> =
-                az.foldRight(Nil) { a: A, list: List<A> -> Cons(a, list) }
+        operator fun <A> invoke(vararg az: A): ListK<A> =
+                az.foldRight(Nil) { a: A, list: ListK<A> -> Cons(a, list) }
 
-        fun fromSeparated(string: String, separator: String): List<String> = List(*string.split(separator).toTypedArray())
+        fun fromSeparated(string: String, separator: String): ListK<String> = ListK(*string.split(separator).toTypedArray())
     }
 }
 
-fun <A> flatten(list: List<List<A>>): List<A> = list.coFoldRight(List.Nil) { x -> x::concat }
+fun <A> flatten(list: ListK<ListK<A>>): ListK<A> = list.coFoldRight(ListK.Nil) { x -> x::concat }
 
-fun List<Int>.sum(): Int = foldRight(0) { x -> { y -> x + y } }
+fun ListK<Int>.sum(): Int = foldRight(0) { x -> { y -> x + y } }
 
-fun List<Double>.sum(): Double = foldRight(1.0) { x -> { y -> x + y } }
+fun ListK<Double>.sum(): Double = foldRight(1.0) { x -> { y -> x + y } }
 
-fun List<Int>.product(): Int = foldRight(1) { x -> { y -> x * y } }
+fun ListK<Int>.product(): Int = foldRight(1) { x -> { y -> x * y } }
 
-fun List<Double>.product(): Double = foldRight(1.0) { x -> { y -> x * y } }
+fun ListK<Double>.product(): Double = foldRight(1.0) { x -> { y -> x * y } }
 
-fun triple(list: List<Int>): List<Int> =
-        List.foldRight(list, List()) { h -> { t: List<Int> -> t.cons(h * 3) } }
+fun triple(list: ListK<Int>): ListK<Int> =
+        ListK.foldRight(list, ListK()) { h -> { t: ListK<Int> -> t.cons(h * 3) } }
 
-fun doubleToString(list: List<Double>): List<String> =
-        List.foldRight(list, List())  { h -> { t: List<String> -> t.cons(h.toString()) } }
+fun doubleToString(list: ListK<Double>): ListK<String> =
+        ListK.foldRight(list, ListK())  { h -> { t: ListK<String> -> t.cons(h.toString()) } }
 
-tailrec fun <A> lastSafe(list: List<A>): Result<A> = when (list) {
-    List.Nil  -> Result()
-    is List.Cons<A> -> when (list.tail) {
-        List.Nil  -> Result(list.head)
-        is List.Cons -> lastSafe(list.tail)
+tailrec fun <A> lastSafe(list: ListK<A>): Result<A> = when (list) {
+    ListK.Nil  -> Result()
+    is ListK.Cons<A> -> when (list.tail) {
+        ListK.Nil  -> Result(list.head)
+        is ListK.Cons -> lastSafe(list.tail)
     }
 }
 
-fun <A> flattenResult(list: List<Result<A>>): List<A> =
-        list.flatMap { ra -> ra.map { List(it) }.getOrElse(List()) }
+fun <A> flattenResult(list: ListK<Result<A>>): ListK<A> =
+        list.flatMap { ra -> ra.map { ListK(it) }.getOrElse(ListK()) }
 
-fun <A> sequenceLeft(list: List<Result<A>>): Result<List<A>> =
+fun <A> sequenceLeft(list: ListK<Result<A>>): Result<ListK<A>> =
         list.foldLeft(Result(
-                List())) { x: Result<List<A>> ->
-            { y -> map2(y, x) { a -> { b: List<A> -> b.cons(a) } } }
+                ListK())) { x: Result<ListK<A>> ->
+            { y -> map2(y, x) { a -> { b: ListK<A> -> b.cons(a) } } }
         }.map { it.reverse() }
 
-fun <A> sequence2(list: List<Result<A>>): Result<List<A>> =
-        list.filter{ !it.isEmpty() }.foldRight(Result(List())) { x ->
-            { y: Result<List<A>> ->
-                map2(x, y) { a -> { b: List<A> -> b.cons(a) } }
+fun <A> sequence2(list: ListK<Result<A>>): Result<ListK<A>> =
+        list.filter{ !it.isEmpty() }.foldRight(Result(ListK())) { x ->
+            { y: Result<ListK<A>> ->
+                map2(x, y) { a -> { b: ListK<A> -> b.cons(a) } }
             }
         }
 
-fun <A, B> traverse(list: List<A>, f: (A) -> Result<B>): Result<List<B>> =
-        list.foldRight(Result(List())) { x ->
-            { y: Result<List<B>> ->
-                map2(f(x), y) { a -> { b: List<B> -> b.cons(a) } }
+fun <A, B> traverse(list: ListK<A>, f: (A) -> Result<B>): Result<ListK<B>> =
+        list.foldRight(Result(ListK())) { x ->
+            { y: Result<ListK<B>> ->
+                map2(f(x), y) { a -> { b: ListK<B> -> b.cons(a) } }
             }
         }
 
-fun <A> sequence(list: List<Result<A>>): Result<List<A>> =
+fun <A> sequence(list: ListK<Result<A>>): Result<ListK<A>> =
         traverse(list) { x: Result<A> -> x }
 
-fun <A, B, C> zipWith(list1: List<A>,
-                      list2: List<B>,
-                      f: (A) -> (B) -> C): List<C> {
+fun <A, B, C> zipWith(list1: ListK<A>,
+                      list2: ListK<B>,
+                      f: (A) -> (B) -> C): ListK<C> {
     tailrec
-    fun zipWith(acc: List<C>,
-                list1: List<A>,
-                list2: List<B>): List<C> = when (list1) {
-        List.Nil -> acc
-        is List.Cons -> when (list2) {
-            List.Nil -> acc
-            is List.Cons ->
+    fun zipWith(acc: ListK<C>,
+                list1: ListK<A>,
+                list2: ListK<B>): ListK<C> = when (list1) {
+        ListK.Nil -> acc
+        is ListK.Cons -> when (list2) {
+            ListK.Nil -> acc
+            is ListK.Cons ->
                 zipWith(acc.cons(f(list1.head)(list2.head)),
                         list1.tail, list2.tail)
         }
     }
-    return zipWith(List(), list1, list2).reverse()
+    return zipWith(ListK(), list1, list2).reverse()
 }
 
-fun <A, B, C> product(list1: List<A>,
-                      list2: List<B>,
-                      f: (A) -> (B) -> C): List<C> =
+fun <A, B, C> product(list1: ListK<A>,
+                      list2: ListK<B>,
+                      f: (A) -> (B) -> C): ListK<C> =
         list1.flatMap { a -> list2.map { b -> f(a)(b) } }
 
-fun <A, B> unzip(list: List<Pair<A, B>>): Pair<List<A>, List<B>> = list.unzip { it }
+fun <A, B> unzip(list: ListK<Pair<A, B>>): Pair<ListK<A>, ListK<B>> = list.unzip { it }
 
-fun <A, S> unfoldResult(z: S, getNext: (S) -> Result<Pair<A, S>>): Result<List<A>> {
-    tailrec fun unfold(acc: List<A>, z: S): Result<List<A>> {
+fun <A, S> unfoldResult(z: S, getNext: (S) -> Result<Pair<A, S>>): Result<ListK<A>> {
+    tailrec fun unfold(acc: ListK<A>, z: S): Result<ListK<A>> {
         val next = getNext(z)
         return when (next) {
             Result.Empty -> Result(acc)
@@ -470,11 +470,11 @@ fun <A, S> unfoldResult(z: S, getNext: (S) -> Result<Pair<A, S>>): Result<List<A
                 unfold(acc.cons(next.value.first), next.value.second)
         }
     }
-    return unfold(List.Nil, z).map(List<A>::reverse)
+    return unfold(ListK.Nil, z).map(ListK<A>::reverse)
 }
 
-fun <A, S> unfold(z: S, getNext: (S) -> Option<Pair<A, S>>): List<A> {
-    tailrec fun unfold(acc: List<A>, z: S): List<A> {
+fun <A, S> unfold(z: S, getNext: (S) -> Option<Pair<A, S>>): ListK<A> {
+    tailrec fun unfold(acc: ListK<A>, z: S): ListK<A> {
         val next = getNext(z)
         return when (next) {
             Option.None -> acc
@@ -482,10 +482,10 @@ fun <A, S> unfold(z: S, getNext: (S) -> Option<Pair<A, S>>): List<A> {
                 unfold(acc.cons(next.value.first), next.value.second)
         }
     }
-    return unfold(List.Nil, z).reverse()
+    return unfold(ListK.Nil, z).reverse()
 }
 
-fun range(start: Int, end: Int): List<Int> =
+fun range(start: Int, end: Int): ListK<Int> =
         unfold(start) { i ->
             if (i < end)
                 Option(Pair(i, i + 1))
