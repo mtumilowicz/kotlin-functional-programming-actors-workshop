@@ -5,12 +5,15 @@ import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ThreadFactory
 
+class ActorContext<T>(behavior: MessageProcessor<T>) {
 
-interface ActorContext<T> {
+    var behavior: MessageProcessor<T> = behavior
+        private set
 
-    fun behavior(): MessageProcessor<T>
-
-    fun become(behavior: MessageProcessor<T>)
+    @Synchronized
+    fun become(behavior: MessageProcessor<T>) {
+        this.behavior = behavior
+    }
 }
 
 interface MessageProcessor<T> {
@@ -41,25 +44,16 @@ class DaemonThreadFactory : ThreadFactory {
 
 abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
 
-    override val context: ActorContext<T> = object: ActorContext<T> {
-
-        var behavior: MessageProcessor<T> = object: MessageProcessor<T> {
+    override val context: ActorContext<T> = ActorContext(
+        object : MessageProcessor<T> {
 
             override fun process(message: T, sender: Actor<T>) {
                 onReceive(message, sender)
             }
-        }
-
-        @Synchronized
-        override fun become(behavior: MessageProcessor<T>) {
-            this.behavior = behavior
-        }
-
-        override fun behavior() = behavior
-    }
+        })
 
     private val executor: ExecutorService =
-            Executors.newSingleThreadExecutor(DaemonThreadFactory())
+        Executors.newSingleThreadExecutor(DaemonThreadFactory())
 
     abstract fun onReceive(message: T, sender: Actor<T>)
 
@@ -71,7 +65,7 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
     override fun tell(message: T, sender: Actor<T>) {
         executor.execute {
             try {
-                context.behavior().process(message, sender)
+                context.behavior.process(message, sender)
             } catch (e: RejectedExecutionException) {
                 /*
                  * This is probably normal and means all pending tasks
