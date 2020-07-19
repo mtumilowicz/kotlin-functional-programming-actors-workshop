@@ -5,13 +5,13 @@ import core.Actor
 import core.TaskIndex
 import core.TaskInput
 
-class Worker(id: String) : AbstractActor<Pair<TaskInput, TaskIndex>>(id) {
+class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
 
     override fun onReceive(
-        message: Pair<TaskInput, TaskIndex>,
-        sender: Actor<Pair<TaskInput, TaskIndex>>
+        message: ComputeFibonacciTask,
+        sender: Actor<ComputeFibonacciTask>
     ) {
-        sender.receive(Pair(TaskInput(fibonacci(message.first.raw)), message.second), self())
+        sender.receive(ComputeFibonacciTask(message.index, TaskInput(fibonacci(message.input.raw))), self())
     }
 
     private fun fibonacci(n: Int): Int {
