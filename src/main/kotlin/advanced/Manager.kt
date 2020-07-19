@@ -12,7 +12,7 @@ class Manager(
     private val processing: List<ComputeFibonacciTask>
     private val waiting: List<ComputeFibonacciTask>
     private val results: List<ComputeFibonacciTask>
-    private val managerFunction: (Behaviour) -> (ComputeFibonacciTask) -> Unit
+    private val processTask: (Behaviour) -> (ComputeFibonacciTask) -> Unit
 
     init {
         val numberedList =
@@ -22,7 +22,7 @@ class Manager(
         this.waiting = numberedList.drop(workers)
         this.results = listOf()
 
-        managerFunction = { behaviour ->
+        processTask = { behaviour ->
             { result ->
                 val results: List<ComputeFibonacciTask> = behaviour.results + result
                 if (results.size == list.size) {
@@ -35,29 +35,23 @@ class Manager(
     }
 
     fun start() {
-        onReceive(ComputeFibonacciTask(TaskIndex(0), IntTaskInput(0)), self())
-        processing.map { this.initWorker(it) }.forEach { it() }
+        context.become(Behaviour(waiting, results))
+        processing.forEach { this.startWorker(it) }
     }
 
-    private fun initWorker(t: ComputeFibonacciTask): () -> Unit =
-        { Worker("Worker " + t.index).receive(t, self()) }
+    private fun startWorker(t: ComputeFibonacciTask) = Worker("Worker " + t.index).receive(t, self())
 
     override fun onReceive(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
         context.become(Behaviour(waiting, results))
     }
 
-    internal inner class Behaviour
-    internal constructor(
+    internal inner class Behaviour internal constructor(
         internal val waiting: List<ComputeFibonacciTask>,
         internal val results: List<ComputeFibonacciTask>
-    ) :
-        MessageProcessor<ComputeFibonacciTask> {
+    ) : MessageProcessor<ComputeFibonacciTask> {
 
-        override fun process(
-            message: ComputeFibonacciTask,
-            sender: Actor<ComputeFibonacciTask>
-        ) {
-            managerFunction(this)(message)
+        override fun process(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
+            processTask(this)(message)
             waiting.take(1).forEach { sender.receive(it, self()) }
         }
     }
