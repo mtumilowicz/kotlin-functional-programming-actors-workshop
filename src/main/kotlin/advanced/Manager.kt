@@ -15,7 +15,9 @@ class Manager(
     private val managerFunction: (Manager) -> (Behaviour) -> (ComputeFibonacciTask) -> Unit
 
     init {
-        val numberedList = list.zip(0..list.size).map { ComputeFibonacciTask(TaskIndex(it.second), IntTaskInput(it.first)) }
+        val numberedList =
+            list.zip(0..list.size)
+                .map { ComputeFibonacciTask(TaskIndex(it.second), IntTaskInput(it.first)) }
         this.processing = numberedList.take(this.workers)
         this.waiting = numberedList.drop(workers)
         this.results = listOf()
@@ -36,7 +38,7 @@ class Manager(
 
     fun start() {
         onReceive(ComputeFibonacciTask(TaskIndex(0), IntTaskInput(0)), self())
-        processing.map { this.initWorker(it)() }
+        processing.map { this.initWorker(it) }.forEach { it() }
     }
 
     private fun initWorker(t: ComputeFibonacciTask): () -> Unit =
