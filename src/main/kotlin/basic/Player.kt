@@ -11,9 +11,9 @@ class Player(
     override fun onReceive(message: Int, sender: Actor<Int>) {
         println("$sound - $message")
         if (message >= 10) {
-            referee.tell(message, sender)
+            referee.receive(message, sender)
         } else {
-            sender.tell(message + 1)
+            sender.receive(message + 1)
         }
     }
 }

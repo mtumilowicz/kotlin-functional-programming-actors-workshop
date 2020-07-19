@@ -6,7 +6,7 @@ interface Actor<T> {
 
     fun self(): Actor<T> = this
 
-    fun tell(message: T, sender: Actor<T> = self()) // used to send a message to this actor
+    fun receive(message: T, sender: Actor<T> = self()) // used to send a message to this actor
 
     fun shutdown()
 }

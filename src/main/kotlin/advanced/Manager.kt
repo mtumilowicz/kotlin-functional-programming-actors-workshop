@@ -14,7 +14,7 @@ class Manager(
     private val initial: List<Pair<Int, Int>>
     private val workList: List<Pair<Int, Int>>
     private val resultHeap: List<Pair<Int, Int>>
-    private val managerFunction: (Manager) -> (Behavior) -> (Pair<Int, Int>) -> Unit
+    private val managerFunction: (Manager) -> (Behaviour) -> (Pair<Int, Int>) -> Unit
 
     init {
         val splitLists = list.zip(0..list.size).chunked(this.workers)
@@ -23,14 +23,14 @@ class Manager(
         this.resultHeap = listOf()
 
         managerFunction = { manager ->
-            { behavior ->
+            { behaviour ->
                 { p ->
-                    val result: List<Pair<Int, Int>> = behavior.resultHeap + p
+                    val result: List<Pair<Int, Int>> = behaviour.resultHeap + p
                     if (result.size == list.size) {
-                        this.client.tell(result.sortedBy { it.second }.map { it.first })
+                        this.client.receive(result.sortedBy { it.second }.map { it.first })
                     } else {
                         manager.context
-                            .become(Behavior(behavior.workList.drop(1), result))
+                            .become(Behaviour(behaviour.workList.drop(1), result))
                     }
                 }
             }
@@ -43,13 +43,13 @@ class Manager(
     }
 
     private fun initWorker(t: Pair<Int, Int>): () -> Unit =
-        { Worker("Worker " + t.second).tell(Pair(t.first, t.second), self()) }
+        { Worker("Worker " + t.second).receive(Pair(t.first, t.second), self()) }
 
     override fun onReceive(message: Pair<Int, Int>, sender: Actor<Pair<Int, Int>>) {
-        context.become(Behavior(workList, resultHeap))
+        context.become(Behaviour(workList, resultHeap))
     }
 
-    internal inner class Behavior
+    internal inner class Behaviour
     internal constructor(
         internal val workList: List<Pair<Int, Int>>,
         internal val resultHeap: List<Pair<Int, Int>>
@@ -60,8 +60,8 @@ class Manager(
             message: Pair<Int, Int>,
             sender: Actor<Pair<Int, Int>>
         ) {
-            managerFunction(this@Manager)(this@Behavior)(message)
-            workList.take(1).forEach { sender.tell(it, self()) }
+            managerFunction(this@Manager)(this@Behaviour)(message)
+            workList.take(1).forEach { sender.receive(it, self()) }
         }
     }
 }

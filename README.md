@@ -67,7 +67,7 @@ through effects
 # actor framework implementation
 * four components:
     * `Actor`
-        * determines the behavior of an actor
+        * determines the behaviour of an actor
     * `AbstractActor`
          * contains all the stuff that’s common to all actors 
         * will be extended by business actors
@@ -87,10 +87,10 @@ through effects
             * messages aren’t sent to actors but to actor references, proxies, or some other substitute
             * an ideal way to build scalable applications
             
-* behavior of an actor looks like an effect
+* behaviour of an actor looks like an effect
     * arguments: message to process and the sender
-* behavior of each actor is allowed to change
-    * is caused by a modification to the state of the actor, replacing the original behavior with a new one
+* behaviour of each actor is allowed to change
+    * is caused by a modification to the state of the actor, replacing the original behaviour with a new one
     
 # AbstractActor implementation
 * All the message management operations are common and

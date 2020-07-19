@@ -1,12 +1,12 @@
 package core
 
-class ActorContext<T>(behavior: MessageProcessor<T>) {
+class ActorContext<T>(behaviour: MessageProcessor<T>) {
 
-    var behavior: MessageProcessor<T> = behavior // access to the actor’s behavior
+    var behaviour: MessageProcessor<T> = behaviour // access to the actor’s behaviour
         private set
 
     @Synchronized
-    fun become(behavior: MessageProcessor<T>) { // actor to change the way it processes messages (behavior)
-        this.behavior = behavior
+    fun become(behaviour: MessageProcessor<T>) { // actor to change the way it processes messages (behaviour)
+        this.behaviour = behaviour
     }
 }

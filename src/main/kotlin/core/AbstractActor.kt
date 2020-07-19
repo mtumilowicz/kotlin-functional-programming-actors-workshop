@@ -2,7 +2,6 @@ package core
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.RejectedExecutionException
 
 abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
 
@@ -23,18 +22,7 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
     }
 
     @Synchronized // synchronized to ensure that messages are processed one at a time
-    override fun tell(message: T, sender: Actor<T>) {
-        executor.execute {
-            try {
-                context.behavior.process(message, sender)
-            } catch (e: RejectedExecutionException) {
-                /*
-                 * This is probably normal and means all pending tasks
-                 * were canceled because the actor was stopped.
-                 */
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
-        }
+    override fun receive(message: T, sender: Actor<T>) {
+        executor.execute { context.behaviour.process(message, sender) }
     }
 }
