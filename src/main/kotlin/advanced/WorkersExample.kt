@@ -2,7 +2,7 @@ package advanced
 
 import core.AbstractActor
 import core.Actor
-import core.TaskInput
+import core.IntTaskInput
 import java.util.concurrent.Semaphore
 
 
@@ -17,10 +17,10 @@ fun main() {
     semaphore.acquire()
     val startTime = System.currentTimeMillis()
     val client =
-        object : AbstractActor<List<TaskInput>>("Client") {
+        object : AbstractActor<List<IntTaskInput>>("Client") {
             override fun onReceive(
-                message: List<TaskInput>,
-                sender: Actor<List<TaskInput>>
+                message: List<IntTaskInput>,
+                sender: Actor<List<IntTaskInput>>
             ) {
                 processSuccess(message)
                 println("Total time: " + (System.currentTimeMillis() - startTime))
@@ -34,7 +34,7 @@ fun main() {
     semaphore.acquire()
 }
 
-fun processSuccess(lst: List<TaskInput>) {
+fun processSuccess(lst: List<IntTaskInput>) {
     val paired = testList.take(40).zip(lst.take(40))
     val correct = paired.find { fibonacci(it.first) != it.second.raw} == null
     require(correct)

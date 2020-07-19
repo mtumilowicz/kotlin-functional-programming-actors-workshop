@@ -2,5 +2,4 @@ package core
 
 open class Task<Input>(
     val index: TaskIndex,
-    val input: TaskInput) {
-}
+    val input: Input)

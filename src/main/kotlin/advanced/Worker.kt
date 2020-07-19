@@ -2,8 +2,7 @@ package advanced
 
 import core.AbstractActor
 import core.Actor
-import core.TaskIndex
-import core.TaskInput
+import core.IntTaskInput
 
 class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
 
@@ -11,7 +10,7 @@ class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
         message: ComputeFibonacciTask,
         sender: Actor<ComputeFibonacciTask>
     ) {
-        sender.receive(ComputeFibonacciTask(message.index, TaskInput(fibonacci(message.input.raw))), self())
+        sender.receive(ComputeFibonacciTask(message.index, IntTaskInput(fibonacci(message.input.raw))), self())
     }
 
     private fun fibonacci(n: Int): Int {

@@ -1,10 +1,10 @@
 package advanced
 
+import core.IntTaskInput
 import core.Task
 import core.TaskIndex
-import core.TaskInput
 
 class ComputeFibonacciTask(
     index: TaskIndex,
-    input: TaskInput
-) : Task<Int>(index, input)
+    input: IntTaskInput
+) : Task<IntTaskInput>(index, input)

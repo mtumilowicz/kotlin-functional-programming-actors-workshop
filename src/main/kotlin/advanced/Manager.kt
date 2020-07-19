@@ -5,7 +5,7 @@ import core.*
 class Manager(
     id: String,
     list: List<Int>,
-    private val client: Actor<List<TaskInput>>,
+    private val client: Actor<List<IntTaskInput>>,
     private val workers: Int
 ) : AbstractActor<ComputeFibonacciTask>(id) {
 
@@ -15,7 +15,7 @@ class Manager(
     private val managerFunction: (Manager) -> (Behaviour) -> (ComputeFibonacciTask) -> Unit
 
     init {
-        val numberedList = list.zip(0..list.size).map { ComputeFibonacciTask(TaskIndex(it.second), TaskInput(it.first)) }
+        val numberedList = list.zip(0..list.size).map { ComputeFibonacciTask(TaskIndex(it.second), IntTaskInput(it.first)) }
         this.processing = numberedList.take(this.workers)
         this.waiting = numberedList.drop(workers)
         this.results = listOf()
@@ -35,7 +35,7 @@ class Manager(
     }
 
     fun start() {
-        onReceive(ComputeFibonacciTask(TaskIndex(0), TaskInput(0)), self())
+        onReceive(ComputeFibonacciTask(TaskIndex(0), IntTaskInput(0)), self())
         processing.map { this.initWorker(it)() }
     }
 
