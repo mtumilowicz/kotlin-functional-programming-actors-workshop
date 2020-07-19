@@ -105,20 +105,13 @@ through effects
     * several instances of workers
     * client
 * main use of actors isn’t for parallelization, but for the abstraction of sharing a mutable state 
-    * In these examples, you used lists that were shared between tasks. 
-    * Without actors, you’d have had to synchronize access to the workList and resultHeap to
-    handle concurrency
-    * Actors allow you to abstract synchronization and mutation in the framework.
-    * actors provide a good way to make functional parts of your code work together,
-      sharing mutable state in an abstracted manner
-* An
-  Actor is essentially a concurrent process that doesn’t constantly occupy a thread
-  * it only occupies a thread when it receives a message
-  * although
-    multiple threads may be concurrently sending messages to an actor, the actor pro-
-    cesses only one message at a time, queueing other messages for subsequent process-
-    ing
-* The main trickiness in an actor implementation has to do with the fact that multiple threads may be messag-
-  ing the actor simultaneously. The implementation needs to ensure that messages are processed only one at a
-  time, and also that all messages sent to the actor will be processed eventually rather than queued indefinitely.
+    * without actors, you’d have had to synchronize access to resources to handle concurrency
+* Actor is essentially a concurrent process that doesn’t constantly occupy a thread
+    * it only occupies a thread when it receives a message
+    * although multiple threads may be concurrently sending messages to an actor, the actor pro-
+    cesses only one message at a time, queueing other messages for subsequent processing
+* main trickiness in an actor implementation has to do with the fact that multiple threads may be 
+messaging the actor simultaneously
+    * implementation needs to ensure that messages are processed only one at a time
+        * all messages sent to the actor must be processed rather than queued indefinitely
     
