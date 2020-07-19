@@ -16,8 +16,8 @@ private val testList = rnd.ints(0, 35).limit(listLength).toList()
 fun main() {
     semaphore.acquire()
     val startTime = System.currentTimeMillis()
-    val client = object : AbstractActor<List<IntTaskInput>>("Client") {
-            override fun onReceive(message: List<IntTaskInput>, sender: Actor<List<IntTaskInput>>) {
+    val client = object : AbstractActor<List<FibonacciTaskOutput>>("Client") {
+            override fun onReceive(message: List<FibonacciTaskOutput>, sender: Actor<List<FibonacciTaskOutput>>) {
                 processSuccess(message)
                 println("Total time: " + (System.currentTimeMillis() - startTime))
                 semaphore.release()
@@ -28,7 +28,7 @@ fun main() {
     semaphore.acquire()
 }
 
-fun processSuccess(lst: List<IntTaskInput>) {
+fun processSuccess(lst: List<FibonacciTaskOutput>) {
     val paired = testList.take(40).zip(lst.take(40))
     val correct = paired.find { Fibonacci.count(it.first) != it.second.raw} == null
     require(correct)

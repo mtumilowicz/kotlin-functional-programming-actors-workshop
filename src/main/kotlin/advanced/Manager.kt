@@ -5,7 +5,7 @@ import core.*
 class Manager(
     id: String,
     list: List<Int>,
-    private val client: Actor<List<IntTaskInput>>,
+    private val client: Actor<List<FibonacciTaskOutput>>,
     workers: Int
 ) : AbstractActor<ComputeFibonacciTask>(id) {
 
@@ -26,7 +26,7 @@ class Manager(
             { result ->
                 val results: List<ComputeFibonacciTask> = behaviour.results + result
                 if (results.size == list.size) {
-                    this.client.receive(results.sortedBy { it.index }.map { it.input })
+                    this.client.receive(results.sortedBy { it.index }.map { it.output!! })
                 } else {
                     this.context.become(Behaviour(behaviour.waiting.drop(1), results))
                 }

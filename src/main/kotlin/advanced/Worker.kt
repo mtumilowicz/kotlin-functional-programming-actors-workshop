@@ -2,7 +2,6 @@ package advanced
 
 import core.AbstractActor
 import core.Actor
-import core.IntTaskInput
 
 class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
 
@@ -10,7 +9,7 @@ class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
         message: ComputeFibonacciTask,
         sender: Actor<ComputeFibonacciTask>
     ) {
-        val task = ComputeFibonacciTask(message.index, IntTaskInput(Fibonacci.count(message.input.raw)))
+        val task = message.run()
         sender.receive(task, self())
     }
 }

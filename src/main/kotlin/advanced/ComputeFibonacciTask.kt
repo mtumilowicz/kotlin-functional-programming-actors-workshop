@@ -6,5 +6,8 @@ import core.TaskIndex
 
 class ComputeFibonacciTask(
     index: TaskIndex,
-    input: IntTaskInput
-) : Task<IntTaskInput>(index, input)
+    input: IntTaskInput,
+    val output: FibonacciTaskOutput? = null
+) : Task<IntTaskInput>(index, input) {
+    fun run(): ComputeFibonacciTask = ComputeFibonacciTask(index, input, FibonacciTaskOutput(Fibonacci.count(input.raw)))
+}
