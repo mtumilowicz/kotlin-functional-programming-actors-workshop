@@ -6,7 +6,7 @@ class Manager(
     id: String,
     list: List<Int>,
     private val client: Actor<List<IntTaskInput>>,
-    private val workers: Int
+    workers: Int
 ) : AbstractActor<ComputeFibonacciTask>(id) {
 
     private val processing: List<ComputeFibonacciTask>
@@ -18,18 +18,18 @@ class Manager(
         val numberedList =
             list.zip(0..list.size)
                 .map { ComputeFibonacciTask(TaskIndex(it.second), IntTaskInput(it.first)) }
-        this.processing = numberedList.take(this.workers)
+        this.processing = numberedList.take(workers)
         this.waiting = numberedList.drop(workers)
         this.results = listOf()
 
         managerFunction = { manager ->
             { behaviour ->
-                { p ->
-                    val result: List<ComputeFibonacciTask> = behaviour.results + p
-                    if (result.size == list.size) {
-                        this.client.receive(result.sortedBy { it.index }.map { it.input })
+                { result ->
+                    val results: List<ComputeFibonacciTask> = behaviour.results + result
+                    if (results.size == list.size) {
+                        this.client.receive(results.sortedBy { it.index }.map { it.input })
                     } else {
-                        manager.context.become(Behaviour(behaviour.waiting.drop(1), result))
+                        manager.context.become(Behaviour(behaviour.waiting.drop(1), results))
                     }
                 }
             }
