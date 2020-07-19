@@ -33,6 +33,5 @@ fun main() {
 }
 
 fun processSuccess(lst: List<Int>) {
-    println("Input: ${testList.chunked(40)[0]}")
-    println("Result: ${lst.chunked(40)[0]}")
+    println("Results: ${testList.take(40).zip(lst.take(40))}")
 }

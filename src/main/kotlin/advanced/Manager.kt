@@ -17,9 +17,10 @@ class Manager(
     private val managerFunction: (Manager) -> (Behaviour) -> (Pair<Int, Int>) -> Unit
 
     init {
-        val splitLists = list.zip(0..list.size).chunked(this.workers)
-        this.initial = splitLists[0]
-        this.workList = splitLists.drop(1).flatten()
+        val numberedList = list.zip(0..list.size)
+        val splitLists = Pair(numberedList.take(this.workers), numberedList.drop(workers))
+        this.initial = splitLists.first
+        this.workList = splitLists.second
         this.resultHeap = listOf()
 
         managerFunction = { manager ->

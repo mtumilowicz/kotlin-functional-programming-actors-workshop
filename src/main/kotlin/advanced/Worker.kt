@@ -9,7 +9,7 @@ class Worker(id: String) : AbstractActor<Pair<Int, Int>>(id) {
         message: Pair<Int, Int>,
         sender: Actor<Pair<Int, Int>>
     ) {
-        sender.receive(Pair(fibonacci(message.first), message.second))
+        sender.receive(Pair(fibonacci(message.first), message.second), self())
     }
 
     private fun fibonacci(n: Int): Int {
