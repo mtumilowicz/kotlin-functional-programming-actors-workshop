@@ -10,17 +10,8 @@ class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
         message: ComputeFibonacciTask,
         sender: Actor<ComputeFibonacciTask>
     ) {
-        sender.receive(ComputeFibonacciTask(message.index, IntTaskInput(fibonacci(message.input.raw))), self())
-    }
-
-    private fun fibonacci(n: Int): Int {
-        tailrec fun fibonacci(prev: Int, next: Int, counter: Int = n): Int =
-            when (counter) {
-                0 -> 1
-                1 -> prev + next
-                else -> fibonacci(next, prev + next, counter - 1)
-            }
-        return fibonacci(0, 1)
+        val task = ComputeFibonacciTask(message.index, IntTaskInput(Fibonacci.count(message.input.raw)))
+        sender.receive(task, self())
     }
 }
 
