@@ -66,78 +66,45 @@ through effects
 
 # actor framework implementation
 * four components:
-  * The Actor interface determines the behavior of an actor.
-  * The AbstractActor class contains all the stuff that’s common to all actors. 
-    * This class will be extended by business actors.
-  * The ActorContext acts as a way to access actors. 
-    * In your implementation, this component will be minimalist and will be used primarily to access 
-    the actor state. 
-    * This component isn’t necessary in such a small implementation, but most serious implementations 
-    use such a component. 
-    * This context allows, for example, searching for available actors.
-  * The MessageProcessor interface will be the interface you’ll implement for any component that has 
-  to handle a received message.
-* Understanding the limitations
-    * One other simplification is that each actor is mapped to a single thread. 
-        * In a real actor system, actors are mapped to pools of threads, allowing thousands or even 
-        millions of actors to run on a few dozen threads.
-    * Another limitation of your implementation will be regarding remote actors. 
-        * Most actor frameworks allow remote actors to be handled in a transparent way, meaning that
-        you can use actors that are running on different machines without having to care about
-        communication
-        * This makes actor frameworks an ideal way to build scalable applications.
-* Designing the actor framework interfaces
-    * fun tell(message: T, sender: Result<Actor<T>>)
-        * is used to send a message to this actor (meaning the actor holding the function)
-        * This means that to send a message to an actor, you must have a reference to
-          it. 
-          * (This is different from real actor frameworks in which messages aren’t sent to actors
-          but to actor references, proxies, or some other substitute. Without this enhancement,
-          it wouldn’t be possible to send messages to remote actors.)
-    ```
-    interface ActorContext<T> {
-        fun behavior(): MessageProcessor<T> // Allows access to the actor’s behavior
-        fun become(behavior: MessageProcessor<T>) // Allows an actor to change its behavior by registering a new MessageProcessor
-    }
-  
-    interface MessageProcessor<T> {
-        fun process(message: T, sender: Result<Actor<T>>)
-    }
-    ```
-    * become function allows an actor to change its behavior, meaning the way it processes messages
-    * the behavior of an actor looks like an effect, taking as its argument a pair com-
-      posed of the message to process and the sender
-    * During the life of the application, the behavior of each actor is allowed to change.
-      * Generally this change of behavior is caused by a modification to the state of the actor,
-      replacing the original behavior with a new one
+    * `Actor`
+        * determines the behavior of an actor
+    * `AbstractActor`
+         * contains all the stuff that’s common to all actors 
+        * will be extended by business actors
+    * `ActorContext`
+        * acts as a way to access actors
+        * in our case - will be minimalist and used primarily to access the actor state
+        * allows for searching for available actors
+    * `MessageProcessor`
+        * implement for any component that handles a received message
+* our implementation
+    * each actor is mapped to a single thread 
+        * in a real actor system, actors are mapped to pools of threads
+            * millions of actors run on a few dozen threads
+    * no support for remote actors 
+        * in a real actor system you can use actors that are running on different machines without 
+        having to care about communication
+            * messages aren’t sent to actors but to actor references, proxies, or some other substitute
+            * an ideal way to build scalable applications
+            
+* behavior of an actor looks like an effect
+    * arguments: message to process and the sender
+* behavior of each actor is allowed to change
+    * is caused by a modification to the state of the actor, replacing the original behavior with a new one
+    
 # AbstractActor implementation
 * All the message management operations are common and
-  are provided by the actor framework, so that you’ll only have to implement the busi-
-  ness part
-* abstract fun onReceive(message: T, sender: Result<Actor<T>>)
-    * Holds the business processing, implemented by the user of the API
-* The tell function is how an actor receives a message
-    * It’s synchronized to ensure that messages are processed one at a time.
-    * When a message is received, it’s
-      processed by the current behavior
-      returned by the actor context.
-* Actors are useful when multiple threads are supposed to share some
-  mutable state, as when a thread produces the result of a computation, and this result
-  must be passed to another thread for further processing
+  are provided by the actor framework, so that you’ll only have to implement the business part
+* actors are useful when multiple threads are supposed to share some mutable state
+    * when a thread produces the result of a computation, and this result must be passed to 
+    another thread for further processing
+    
 # Running a computation in parallel
-* To simulate a long-running computation, you’ll choose a
-  list of random numbers between 0 and 30, and compute the corresponding Fibonacci
-  value using a slow algorithm.
-* The application is composed of three kinds of actors: a Manager , in charge of cre-
-  ating a given number of worker actors and distributing the tasks to them; several
-  instances of workers; and a client, which is implemented in the main program class
-  as an anonymous actor
-* As you can see, this actor is stateless. 
-    * It computes the result and sends it back to the sender to which it has received a reference.
-    * This might be a different actor than the caller
-
-* The main use of actors isn’t for parallelization, but for the abstraction of sharing a
-mutable state. 
+* application is composed of three kinds of actors
+    * Manager - creates a given number of worker actors and distributing the tasks to them
+    * several instances of workers
+    * client
+* main use of actors isn’t for parallelization, but for the abstraction of sharing a mutable state 
     * In these examples, you used lists that were shared between tasks. 
     * Without actors, you’d have had to synchronize access to the workList and resultHeap to
     handle concurrency
