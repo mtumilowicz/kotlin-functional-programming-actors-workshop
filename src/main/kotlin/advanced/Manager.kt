@@ -57,7 +57,7 @@ class Manager(
             message: ComputeFibonacciTask,
             sender: Actor<ComputeFibonacciTask>
         ) {
-            managerFunction(this@Behaviour)(message)
+            managerFunction(this)(message)
             waiting.take(1).forEach { sender.receive(it, self()) }
         }
     }
