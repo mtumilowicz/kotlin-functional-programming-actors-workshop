@@ -16,13 +16,13 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
             }
         })
 
-    abstract fun onReceive(message: T, sender: Actor<T>)
+    abstract fun onReceive(message: T, sender: Actor<T>) // business processing
 
     override fun shutdown() {
         this.executor.shutdown()
     }
 
-    @Synchronized
+    @Synchronized // synchronized to ensure that messages are processed one at a time
     override fun tell(message: T, sender: Actor<T>) {
         executor.execute {
             try {

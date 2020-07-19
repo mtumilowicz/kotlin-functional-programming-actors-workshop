@@ -13,7 +13,7 @@ class Player(
         if (message >= 10) {
             referee.tell(message, sender)
         } else {
-            sender.tell(message + 1, self())
+            sender.tell(message + 1)
         }
     }
 }
