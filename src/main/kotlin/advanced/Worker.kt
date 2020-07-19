@@ -3,14 +3,15 @@ package advanced
 import core.AbstractActor
 import core.Actor
 import core.TaskIndex
+import core.TaskInput
 
-class Worker(id: String) : AbstractActor<Pair<Int, TaskIndex>>(id) {
+class Worker(id: String) : AbstractActor<Pair<TaskInput, TaskIndex>>(id) {
 
     override fun onReceive(
-        message: Pair<Int, TaskIndex>,
-        sender: Actor<Pair<Int, TaskIndex>>
+        message: Pair<TaskInput, TaskIndex>,
+        sender: Actor<Pair<TaskInput, TaskIndex>>
     ) {
-        sender.receive(Pair(fibonacci(message.first), message.second), self())
+        sender.receive(Pair(TaskInput(fibonacci(message.first.raw)), message.second), self())
     }
 
     private fun fibonacci(n: Int): Int {
