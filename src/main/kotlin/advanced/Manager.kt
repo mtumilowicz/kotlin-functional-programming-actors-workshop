@@ -12,7 +12,7 @@ class Manager(
     private val processing: List<ComputeFibonacciTask>
     private val waiting: List<ComputeFibonacciTask>
     private val results: List<ComputeFibonacciTask>
-    private val managerFunction: (Manager) -> (Behaviour) -> (ComputeFibonacciTask) -> Unit
+    private val managerFunction: (Behaviour) -> (ComputeFibonacciTask) -> Unit
 
     init {
         val numberedList =
@@ -22,15 +22,13 @@ class Manager(
         this.waiting = numberedList.drop(workers)
         this.results = listOf()
 
-        managerFunction = { manager ->
-            { behaviour ->
-                { result ->
-                    val results: List<ComputeFibonacciTask> = behaviour.results + result
-                    if (results.size == list.size) {
-                        this.client.receive(results.sortedBy { it.index }.map { it.input })
-                    } else {
-                        manager.context.become(Behaviour(behaviour.waiting.drop(1), results))
-                    }
+        managerFunction = { behaviour ->
+            { result ->
+                val results: List<ComputeFibonacciTask> = behaviour.results + result
+                if (results.size == list.size) {
+                    this.client.receive(results.sortedBy { it.index }.map { it.input })
+                } else {
+                    this.context.become(Behaviour(behaviour.waiting.drop(1), results))
                 }
             }
         }
@@ -59,7 +57,7 @@ class Manager(
             message: ComputeFibonacciTask,
             sender: Actor<ComputeFibonacciTask>
         ) {
-            managerFunction(this@Manager)(this@Behaviour)(message)
+            managerFunction(this@Behaviour)(message)
             waiting.take(1).forEach { sender.receive(it, self()) }
         }
     }
