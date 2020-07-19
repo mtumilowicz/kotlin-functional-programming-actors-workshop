@@ -11,27 +11,26 @@ class Manager(
     private val workers: Int
 ) : AbstractActor<Pair<Int, Int>>(id) {
 
-    private val initial: List<Pair<Int, Int>>
-    private val workList: List<Pair<Int, Int>>
-    private val resultHeap: List<Pair<Int, Int>>
+    private val processing: List<Pair<Int, Int>>
+    private val waiting: List<Pair<Int, Int>>
+    private val results: List<Pair<Int, Int>>
     private val managerFunction: (Manager) -> (Behaviour) -> (Pair<Int, Int>) -> Unit
 
     init {
         val numberedList = list.zip(0..list.size)
-        val splitLists = Pair(numberedList.take(this.workers), numberedList.drop(workers))
-        this.initial = splitLists.first
-        this.workList = splitLists.second
-        this.resultHeap = listOf()
+        this.processing = numberedList.take(this.workers)
+        this.waiting = numberedList.drop(workers)
+        this.results = listOf()
 
         managerFunction = { manager ->
             { behaviour ->
                 { p ->
-                    val result: List<Pair<Int, Int>> = behaviour.resultHeap + p
+                    val result: List<Pair<Int, Int>> = behaviour.results + p
                     if (result.size == list.size) {
                         this.client.receive(result.sortedBy { it.second }.map { it.first })
                     } else {
                         manager.context
-                            .become(Behaviour(behaviour.workList.drop(1), result))
+                            .become(Behaviour(behaviour.waiting.drop(1), result))
                     }
                 }
             }
@@ -40,20 +39,20 @@ class Manager(
 
     fun start() {
         onReceive(Pair(0, 0), self())
-        initial.map { this.initWorker(it)() }
+        processing.map { this.initWorker(it)() }
     }
 
     private fun initWorker(t: Pair<Int, Int>): () -> Unit =
         { Worker("Worker " + t.second).receive(Pair(t.first, t.second), self()) }
 
     override fun onReceive(message: Pair<Int, Int>, sender: Actor<Pair<Int, Int>>) {
-        context.become(Behaviour(workList, resultHeap))
+        context.become(Behaviour(waiting, results))
     }
 
     internal inner class Behaviour
     internal constructor(
-        internal val workList: List<Pair<Int, Int>>,
-        internal val resultHeap: List<Pair<Int, Int>>
+        internal val waiting: List<Pair<Int, Int>>,
+        internal val results: List<Pair<Int, Int>>
     ) :
         MessageProcessor<Pair<Int, Int>> {
 
@@ -62,7 +61,7 @@ class Manager(
             sender: Actor<Pair<Int, Int>>
         ) {
             managerFunction(this@Manager)(this@Behaviour)(message)
-            workList.take(1).forEach { sender.receive(it, self()) }
+            waiting.take(1).forEach { sender.receive(it, self()) }
         }
     }
 }
