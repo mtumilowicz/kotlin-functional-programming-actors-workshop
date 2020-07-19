@@ -21,6 +21,7 @@ class Manager(
         this.processing = numberedList.take(workers)
         this.waiting = numberedList.drop(workers)
         this.results = listOf()
+        context.become(Behaviour(waiting, results))
 
         processTask = { behaviour ->
             { result ->
@@ -35,7 +36,6 @@ class Manager(
     }
 
     fun start() {
-        context.become(Behaviour(waiting, results))
         processing.forEach { this.startWorker(it) }
     }
 
