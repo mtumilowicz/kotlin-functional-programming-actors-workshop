@@ -2,12 +2,13 @@ package advanced
 
 import core.AbstractActor
 import core.Actor
+import core.TaskIndex
 
-class Worker(id: String) : AbstractActor<Pair<Int, Int>>(id) {
+class Worker(id: String) : AbstractActor<Pair<Int, TaskIndex>>(id) {
 
     override fun onReceive(
-        message: Pair<Int, Int>,
-        sender: Actor<Pair<Int, Int>>
+        message: Pair<Int, TaskIndex>,
+        sender: Actor<Pair<Int, TaskIndex>>
     ) {
         sender.receive(Pair(fibonacci(message.first), message.second), self())
     }
