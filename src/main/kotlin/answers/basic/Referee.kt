@@ -1,7 +1,7 @@
 package answers.basic
 
-import answers.core.AbstractActor
-import answers.core.Actor
+import answers.core.actor.AbstractActor
+import answers.core.actor.Actor
 
 class Referee : AbstractActor<Int>("Referee") {
     override fun onReceive(message: Int, sender: Actor<Int>) {

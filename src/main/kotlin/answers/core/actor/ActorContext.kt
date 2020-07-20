@@ -1,4 +1,4 @@
-package answers.core
+package answers.core.actor
 
 class ActorContext<T>(behaviour: MessageProcessor<T>) {
 

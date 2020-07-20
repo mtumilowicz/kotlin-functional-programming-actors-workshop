@@ -1,4 +1,4 @@
-package answers.core
+package answers.core.actor
 
 interface Actor<T> {
 

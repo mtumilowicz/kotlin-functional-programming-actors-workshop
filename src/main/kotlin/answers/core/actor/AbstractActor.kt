@@ -1,5 +1,6 @@
-package answers.core
+package answers.core.actor
 
+import answers.core.DaemonThreadFactory
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

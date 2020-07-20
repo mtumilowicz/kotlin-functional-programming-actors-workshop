@@ -1,7 +1,7 @@
 package answers.advanced
 
-import answers.core.AbstractActor
-import answers.core.Actor
+import answers.core.actor.AbstractActor
+import answers.core.actor.Actor
 
 class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
 
