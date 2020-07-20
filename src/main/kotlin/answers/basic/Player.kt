@@ -1,7 +1,7 @@
 package answers.basic
 
-import answers.core.actor.AbstractActor
-import answers.core.actor.Actor
+import answers.actor.AbstractActor
+import answers.actor.Actor
 
 class Player(
     id: String,

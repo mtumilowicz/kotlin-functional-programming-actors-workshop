@@ -1,6 +1,6 @@
-package answers.core.actor
+package workshop.actor
 
-import answers.core.DaemonThreadFactory
+import common.DaemonThreadFactory
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

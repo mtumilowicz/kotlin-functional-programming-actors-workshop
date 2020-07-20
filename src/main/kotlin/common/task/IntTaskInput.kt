@@ -1,3 +1,3 @@
-package answers.core.task
+package common.task
 
 class IntTaskInput(val raw: Int)

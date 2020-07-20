@@ -1,7 +1,7 @@
 package answers.advanced
 
-import answers.core.actor.AbstractActor
-import answers.core.actor.Actor
+import answers.actor.AbstractActor
+import answers.actor.Actor
 import java.util.concurrent.Semaphore
 import kotlin.streams.toList
 

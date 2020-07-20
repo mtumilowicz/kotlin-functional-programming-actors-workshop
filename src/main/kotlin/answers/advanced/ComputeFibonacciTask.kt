@@ -1,8 +1,8 @@
 package answers.advanced
 
-import answers.core.task.IntTaskInput
-import answers.core.task.Task
-import answers.core.task.TaskIndex
+import common.task.IntTaskInput
+import common.task.Task
+import common.task.TaskIndex
 
 class ComputeFibonacciTask(
     index: TaskIndex,

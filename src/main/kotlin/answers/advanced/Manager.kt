@@ -1,11 +1,10 @@
 package answers.advanced
 
-import answers.core.actor.AbstractActor
-import answers.core.actor.Actor
-import answers.core.actor.MessageProcessor
-import answers.core.task.IntTaskInput
-import answers.core.task.TaskIndex
-import core.*
+import answers.actor.AbstractActor
+import answers.actor.Actor
+import answers.actor.MessageProcessor
+import common.task.IntTaskInput
+import common.task.TaskIndex
 
 class Manager(
     id: String,

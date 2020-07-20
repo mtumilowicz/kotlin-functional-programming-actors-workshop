@@ -1,4 +1,4 @@
-package answers.core
+package common
 
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
