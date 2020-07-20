@@ -1,4 +1,4 @@
-package core
+package answers.core
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -7,13 +7,14 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
 
     private val executor: ExecutorService = Executors.newSingleThreadExecutor(DaemonThreadFactory())
 
-    override val context: ActorContext<T> = ActorContext(
-        object : MessageProcessor<T> {
+    override val context: ActorContext<T> =
+        ActorContext(
+            object : MessageProcessor<T> {
 
-            override fun process(message: T, sender: Actor<T>) {
-                onReceive(message, sender)
-            }
-        })
+                override fun process(message: T, sender: Actor<T>) {
+                    onReceive(message, sender)
+                }
+            })
 
     abstract fun onReceive(message: T, sender: Actor<T>) // business processing
 

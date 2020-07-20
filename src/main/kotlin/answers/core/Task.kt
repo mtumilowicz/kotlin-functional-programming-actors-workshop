@@ -1,4 +1,4 @@
-package core
+package answers.core
 
 open class Task<Input, Output>(
     val index: TaskIndex,

@@ -1,5 +1,6 @@
-package advanced
+package answers.advanced
 
+import answers.core.*
 import core.*
 
 class Manager(
@@ -17,7 +18,13 @@ class Manager(
     init {
         val numberedList =
             list.zip(0..list.size)
-                .map { ComputeFibonacciTask(TaskIndex(it.second), IntTaskInput(it.first)) }
+                .map {
+                    ComputeFibonacciTask(
+                        TaskIndex(
+                            it.second
+                        ), IntTaskInput(it.first)
+                    )
+                }
         this.processing = numberedList.take(workers)
         this.waiting = numberedList.drop(workers)
         this.results = listOf()
@@ -39,7 +46,9 @@ class Manager(
         processing.forEach { this.startWorker(it) }
     }
 
-    private fun startWorker(task: ComputeFibonacciTask) = Worker("Worker " + task.index).receive(task, self())
+    private fun startWorker(task: ComputeFibonacciTask) = Worker(
+        "Worker " + task.index
+    ).receive(task, self())
 
     override fun onReceive(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
         context.become(Behaviour(waiting, results))

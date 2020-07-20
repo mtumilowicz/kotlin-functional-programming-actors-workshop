@@ -1,4 +1,4 @@
-package basic
+package answers.basic
 
 fun main() {
     val referee = Referee()

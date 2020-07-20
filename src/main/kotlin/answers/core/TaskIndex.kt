@@ -1,4 +1,4 @@
-package core
+package answers.core
 
 data class TaskIndex(val raw: Int) : Comparable<TaskIndex> {
 

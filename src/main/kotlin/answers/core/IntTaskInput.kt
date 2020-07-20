@@ -1,3 +1,3 @@
-package core
+package answers.core
 
 class IntTaskInput(val raw: Int)
