@@ -5,8 +5,8 @@ import core.*
 class Manager(
     id: String,
     list: List<Int>,
-    private val client: Actor<List<FibonacciTaskOutput>>,
-    workers: Int
+    workers: Int,
+    private val client: Actor<List<FibonacciTaskOutput>>
 ) : AbstractActor<ComputeFibonacciTask>(id) {
 
     private val processing: List<ComputeFibonacciTask>
@@ -39,7 +39,7 @@ class Manager(
         processing.forEach { this.startWorker(it) }
     }
 
-    private fun startWorker(t: ComputeFibonacciTask) = Worker("Worker " + t.index).receive(t, self())
+    private fun startWorker(task: ComputeFibonacciTask) = Worker("Worker " + task.index).receive(task, self())
 
     override fun onReceive(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
         context.become(Behaviour(waiting, results))
