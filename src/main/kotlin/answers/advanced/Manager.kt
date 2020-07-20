@@ -46,7 +46,7 @@ class Manager(
     private fun startWorker(task: ComputeFibonacciTask) =
         Worker("Worker " + task.index).enqueue(task, self())
 
-    override fun onReceive(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
+    override fun handle(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
         require(false)
     }
 

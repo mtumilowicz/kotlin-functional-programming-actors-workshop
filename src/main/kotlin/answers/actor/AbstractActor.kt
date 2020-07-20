@@ -13,11 +13,11 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
             object : MessageProcessor<T> {
 
                 override fun process(message: T, sender: Actor<T>) {
-                    onReceive(message, sender)
+                    handle(message, sender)
                 }
             })
 
-    abstract fun onReceive(message: T, sender: Actor<T>) // business processing
+    abstract fun handle(message: T, sender: Actor<T>) // business processing
 
     override fun shutdown() {
         this.executor.shutdown()

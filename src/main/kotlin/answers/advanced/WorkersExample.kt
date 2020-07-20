@@ -17,7 +17,7 @@ fun main() {
     semaphore.acquire()
     val startTime = System.currentTimeMillis()
     val client = object : AbstractActor<List<FibonacciTaskOutput>>("Client") {
-        override fun onReceive(message: List<FibonacciTaskOutput>, sender: Actor<List<FibonacciTaskOutput>>) {
+        override fun handle(message: List<FibonacciTaskOutput>, sender: Actor<List<FibonacciTaskOutput>>) {
             processSuccess(message)
             println("Total time: " + (System.currentTimeMillis() - startTime))
             semaphore.release()

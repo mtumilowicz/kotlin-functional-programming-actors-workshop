@@ -1,12 +1,11 @@
 package workshop.actor
 
+/**
+ * every ActorContext has changeable behaviour, hint: MessageProcessor
+ * * provide access to the actor’s behaviour, hint: var behaviour, private set
+ * * actor to change the way it processes messages (behaviour)
+ * * behaviour mutation, hint: become(behaviour: MessageProcessor<T>), @Synchronized
+ */
 class ActorContext<T>(behaviour: MessageProcessor<T>) {
 
-    var behaviour: MessageProcessor<T> = behaviour // access to the actor’s behaviour
-        private set
-
-    @Synchronized
-    fun become(behaviour: MessageProcessor<T>) { // actor to change the way it processes messages (behaviour)
-        this.behaviour = behaviour
-    }
 }

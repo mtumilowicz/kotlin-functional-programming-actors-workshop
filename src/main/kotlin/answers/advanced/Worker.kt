@@ -5,7 +5,7 @@ import answers.actor.Actor
 
 class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
 
-    override fun onReceive(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
+    override fun handle(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
         val task = message.run()
         sender.enqueue(task, self())
     }

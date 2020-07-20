@@ -8,7 +8,7 @@ class Player(
     private val sound: String,
     private val referee: Actor<Int>
 ) : AbstractActor<Int>(id) {
-    override fun onReceive(message: Int, sender: Actor<Int>) {
+    override fun handle(message: Int, sender: Actor<Int>) {
         println("$sound - $message")
         if (message >= 10) {
             referee.enqueue(message, sender)
