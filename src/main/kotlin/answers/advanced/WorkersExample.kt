@@ -25,7 +25,7 @@ fun main() {
     }
     val manager = Manager(
         id = "Manager",
-        list = taskInputs,
+        taskInputs = taskInputs,
         workers = workersNo,
         client = client
     )

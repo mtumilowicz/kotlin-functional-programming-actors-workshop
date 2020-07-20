@@ -8,7 +8,7 @@ import common.task.TaskIndex
 
 class Manager(
     id: String,
-    list: List<Int>,
+    taskInputs: List<Int>,
     workers: Int,
     private val client: Actor<List<FibonacciTaskOutput>>
 ) : AbstractActor<ComputeFibonacciTask>(id) {
@@ -19,24 +19,18 @@ class Manager(
     private val processTask: (Behaviour) -> (ComputeFibonacciTask) -> Unit
 
     init {
-        val numberedList =
-            list.zip(0..list.size)
-                .map {
-                    ComputeFibonacciTask(
-                        TaskIndex(
-                            it.second
-                        ), IntTaskInput(it.first)
-                    )
-                }
-        this.processing = numberedList.take(workers)
-        this.waiting = numberedList.drop(workers)
+        val tasks =
+            taskInputs.zip(0..taskInputs.size)
+                .map { ComputeFibonacciTask(TaskIndex(it.second), IntTaskInput(it.first)) }
+        this.processing = tasks.take(workers)
+        this.waiting = tasks.drop(workers)
         this.results = listOf()
         context.become(Behaviour(waiting, results))
 
         processTask = { behaviour ->
             { result ->
                 val results: List<ComputeFibonacciTask> = behaviour.results + result
-                if (results.size == list.size) {
+                if (results.size == taskInputs.size) {
                     this.client.enqueue(results.sortedBy { it.index }.map { it.output!! })
                 } else {
                     this.context.become(Behaviour(behaviour.waiting.drop(1), results))
@@ -49,12 +43,11 @@ class Manager(
         processing.forEach { this.startWorker(it) }
     }
 
-    private fun startWorker(task: ComputeFibonacciTask) = Worker(
-        "Worker " + task.index
-    ).enqueue(task, self())
+    private fun startWorker(task: ComputeFibonacciTask) =
+        Worker("Worker " + task.index).enqueue(task, self())
 
     override fun onReceive(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
-        context.become(Behaviour(waiting, results))
+        require(false)
     }
 
     internal inner class Behaviour internal constructor(
