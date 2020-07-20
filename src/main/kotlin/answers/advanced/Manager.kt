@@ -37,7 +37,7 @@ class Manager(
             { result ->
                 val results: List<ComputeFibonacciTask> = behaviour.results + result
                 if (results.size == list.size) {
-                    this.client.receive(results.sortedBy { it.index }.map { it.output!! })
+                    this.client.enqueue(results.sortedBy { it.index }.map { it.output!! })
                 } else {
                     this.context.become(Behaviour(behaviour.waiting.drop(1), results))
                 }
@@ -51,7 +51,7 @@ class Manager(
 
     private fun startWorker(task: ComputeFibonacciTask) = Worker(
         "Worker " + task.index
-    ).receive(task, self())
+    ).enqueue(task, self())
 
     override fun onReceive(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
         context.become(Behaviour(waiting, results))
@@ -64,7 +64,7 @@ class Manager(
 
         override fun process(message: ComputeFibonacciTask, sender: Actor<ComputeFibonacciTask>) {
             processTask(this)(message)
-            waiting.take(1).forEach { sender.receive(it, self()) }
+            waiting.take(1).forEach { sender.enqueue(it, self()) }
         }
     }
 }

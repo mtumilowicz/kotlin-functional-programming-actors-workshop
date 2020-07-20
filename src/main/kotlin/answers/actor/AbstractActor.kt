@@ -24,7 +24,7 @@ abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
     }
 
     @Synchronized // synchronized to ensure that messages are processed one at a time
-    override fun receive(message: T, sender: Actor<T>) {
+    override fun enqueue(message: T, sender: Actor<T>) {
         executor.execute { context.behaviour.process(message, sender) }
     }
 }
