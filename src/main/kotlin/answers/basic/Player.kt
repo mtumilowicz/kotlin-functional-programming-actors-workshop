@@ -13,7 +13,7 @@ class Player(
         if (message >= 10) {
             referee.enqueue(message, sender)
         } else {
-            sender.enqueue(message + 1)
+            sender.enqueue(message + 1, self())
         }
     }
 }
