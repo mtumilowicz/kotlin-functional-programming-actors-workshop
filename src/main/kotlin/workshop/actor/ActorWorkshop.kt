@@ -6,6 +6,6 @@ package workshop.actor
  * * hint: enqueue(message: T, sender: Actor<T> = self())
  * every actor should have a shutdown function
  */
-interface Actor<T> {
+interface ActorWorkshop<T> {
 
 }

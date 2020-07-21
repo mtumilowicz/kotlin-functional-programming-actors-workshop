@@ -9,6 +9,6 @@ package workshop.actor
  * business processing: handle(message: T, sender: Actor<T>) (abstract)
  * context, hint: anonymous class implementing MessageProcessor, invoke handle method
  */
-abstract class AbstractActor<T>(protected val id: String) : Actor<T> {
+abstract class AbstractActorWorkshop<T>(protected val id: String) : ActorWorkshop<T> {
 
 }

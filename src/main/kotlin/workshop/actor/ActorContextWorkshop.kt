@@ -6,6 +6,6 @@ package workshop.actor
  * * actor to change the way it processes messages (behaviour)
  * * behaviour mutation, hint: become(behaviour: MessageProcessor<T>), @Synchronized
  */
-class ActorContext<T>(behaviour: MessageProcessor<T>) {
+class ActorContextWorkshop<T>(behaviour: MessageProcessorWorkshop<T>) {
 
 }
