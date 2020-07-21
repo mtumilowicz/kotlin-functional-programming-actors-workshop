@@ -1,6 +1,9 @@
 # kotlin-functional-programming-actors-workshop
 * https://www.manning.com/books/the-joy-of-kotlin
 * https://github.com/pysaumont/fpinkotlin
+* [Actor Model Explained](https://www.youtube.com/watch?v=ELwEdb_pD0k)
+* [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know...)](https://www.youtube.com/watch?v=7erJ1DV_Tlo)
+* [Introduction to the Actor Model for Concurrent Computation: Tech Talks @ AppNexus](https://www.youtube.com/watch?v=lPTqcecwkJg)
 
 # sharing mutable state
 * general solution: remove state mutation
