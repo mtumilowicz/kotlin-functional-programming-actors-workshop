@@ -1,3 +1,3 @@
-package answers.advanced
+package common.fibonacci
 
 class FibonacciTaskOutput(val raw: Int)

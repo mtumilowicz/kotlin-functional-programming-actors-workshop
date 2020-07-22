@@ -3,6 +3,8 @@ package answers.advanced
 import answers.actor.AbstractActor
 import answers.actor.Actor
 import answers.actor.MessageProcessor
+import common.fibonacci.ComputeFibonacciTask
+import common.fibonacci.FibonacciTaskOutput
 import common.task.IntTaskInput
 import common.task.TaskIndex
 

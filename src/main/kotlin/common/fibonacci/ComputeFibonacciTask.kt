@@ -1,4 +1,4 @@
-package answers.advanced
+package common.fibonacci
 
 import common.task.IntTaskInput
 import common.task.Task

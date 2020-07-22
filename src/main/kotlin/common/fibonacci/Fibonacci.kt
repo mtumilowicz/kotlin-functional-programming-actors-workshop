@@ -1,4 +1,4 @@
-package answers.advanced
+package common.fibonacci
 
 object Fibonacci {
     fun count(n: Int): Int {

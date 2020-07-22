@@ -2,6 +2,7 @@ package answers.advanced
 
 import answers.actor.AbstractActor
 import answers.actor.Actor
+import common.fibonacci.ComputeFibonacciTask
 
 class Worker(id: String) : AbstractActor<ComputeFibonacciTask>(id) {
 

@@ -1,9 +1,10 @@
-package answers.advanced
+package workshop.advanced
 
 import answers.actor.AbstractActor
 import answers.actor.Actor
 import common.fibonacci.Fibonacci
 import common.fibonacci.FibonacciTaskOutput
+import workshop.actor.AbstractActorWorkshop
 import java.util.concurrent.Semaphore
 import kotlin.streams.toList
 
@@ -11,28 +12,21 @@ private val semaphore = Semaphore(1)
 private const val taskCount = 1_000L
 private const val workersNo = 2
 private val rnd = java.util.Random(0)
-private val taskInputs = rnd.ints(0, 35)
-    .limit(taskCount)
-    .toList()
+// create taskCount random ints in range [0; 35], hint: rnd, ints, limit
+private val taskInputs: List<Int> = listOf()
 
 fun main() {
     semaphore.acquire()
     val startTime = System.currentTimeMillis()
-    val client = object : AbstractActor<List<FibonacciTaskOutput>>("Client") {
-        override fun handle(message: List<FibonacciTaskOutput>, sender: Actor<List<FibonacciTaskOutput>>) {
-            processSuccess(message)
-            println("Total time: " + (System.currentTimeMillis() - startTime))
-            semaphore.release()
-        }
+    // client client as an anonymous class implementation, hint: object : xxx
+    val client: AbstractActorWorkshop<List<FibonacciTaskOutput>> = object : AbstractActorWorkshop<List<FibonacciTaskOutput>>("Client") {
+        // override handle
+        // processSuccess
+        // print total time
+        // release semaphore
     }
-    val manager = Manager(
-        id = "Manager",
-        taskInputs = taskInputs,
-        workers = workersNo,
-        client = client
-    )
-    manager.start()
-    semaphore.acquire()
+    // create manager and start it, hint: ManagerWorkshop
+    // acquire semaphore
 }
 
 fun processSuccess(lst: List<FibonacciTaskOutput>) {
