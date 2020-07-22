@@ -10,27 +10,22 @@
 * workshop are in `workshop` package, answers: `answers`
 
 # introduction
-
-
-# sharing mutable state
-* in a multithreaded program, how can you increment the counter in a safe way, avoiding 
-concurrent access?
-    * use locks or make operations atomic, or both
-    * simple analogy
-        * living on a desert island - if you’re the only inhabitant, there’s no need 
-        for locks on your doors
-* general solution: remove state mutation
-* single thread environment
-    * `function(oldState) returns (newState, result)`
-* multithreaded environment
-    * immutable data structures don’t help
-    * needs: mutable reference so that the new immutable data can replace the previous one
-* in functional programming - sharing resources has to be done as an effect
-    * every access to that resources treat as input/output (I/O)
-* sharing a mutable should be abstracted
-    * common technique: side effects as an implementation detail for a purely functional API
-        * side effects are not observable to code
-    * example: actor framework
+* sharing mutable state
+    * general solution: remove state mutation
+    * single thread environment
+        * `function(oldState) returns (newState, result)`
+    * multithreaded environment
+        * use locks or make operations atomic, or both
+            * analogy vs single thread: living on a desert island
+                * if you’re the only inhabitant, there’s no need for locks on your doors
+        * immutable data structures don’t help
+        * needs: mutable reference so that the new immutable data can replace the previous one
+    * should be abstracted
+        * in functional programming - sharing resources has to be done as an effect
+            * every access to that resources treat as input/output (I/O)
+        * common technique: side effects as an implementation detail for a purely functional API
+            * side effects are not observable to code
+        * example: actor framework
 
 # actor
 * actor - fundamental unit of computation
@@ -107,6 +102,7 @@ through effects
                         the priority queue
 * behaviour of each actor is allowed to change
     * is caused by a modification to the state of the actor, replacing the original behaviour with a new one
+
 # actor framework implementation
 * four components:
     * `Actor`
