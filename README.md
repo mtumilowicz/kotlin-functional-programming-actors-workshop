@@ -3,7 +3,48 @@
 * https://github.com/pysaumont/fpinkotlin
 * [Actor Model Explained](https://www.youtube.com/watch?v=ELwEdb_pD0k)
 * [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know...)](https://www.youtube.com/watch?v=7erJ1DV_Tlo)
-* [Introduction to the Actor Model for Concurrent Computation: Tech Talks @ AppNexus](https://www.youtube.com/watch?v=lPTqcecwkJg)
+
+# preface
+* goals of this workshop
+    * introduction to actor model
+* workshop are in `workshop` package, answers: `answers`
+
+# introduction
+* actor - fundamental unit of computation
+* actor has to embody 3 essentials elements of computations
+    * processing - get something done
+    * storage - remember things
+    * communication
+* one ant is no ant - one actor is no actor
+* actors come in systems
+* actor can address himself - way of implement recursion
+    * example: factorial
+* fundamental properties
+    * everything is an actor
+    * misconception: every actor has a mailbox, and mailbox is an actor - mailbox needs a mailbox?
+        * resolve it with axioms
+* when an actor receives a message, all he can do is:
+    * create more actors
+    * send messages to other actors
+    * decide what he gonna do with the next message it receives
+        * example: account balance - 5$, deposit 1$, now - account balance is 6$
+        * what is a difference from creating a new actor: we expect that the old actor has up-to-date balance
+* each actor has an address, we can send messages to
+    * many-to-many
+    * one address for a bunch of actors (ex. replicating behind the scenes)
+    * one actor for many addresses
+    * proxy/forwarding actor (forwards messages to other actors)
+    * all you can do with an address is send it a message
+* actors can receive messages in any order
+    * packets in TCP can come in any order (sequence number to reconstruct in order)
+    * post in any country - you could get letters in any order
+* there are no channels
+    * message will be delivered at most once
+        * it could take a long time, like message in the bottle that floats over the see
+    * no intermediaries
+    * messages goes directly
+    * you could create an actor that acts like a channel
+* processes one message at a time
 
 # sharing mutable state
 * general solution: remove state mutation
