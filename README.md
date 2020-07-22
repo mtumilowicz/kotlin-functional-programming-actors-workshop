@@ -34,7 +34,7 @@
     * storage - remember things
     * communication
 * one ant is no ant - one actor is no actor
-* actors come in systems
+    * actors come in systems
 * actor can address himself - way of implement recursion
     * example: factorial
 * fundamental properties
@@ -44,27 +44,28 @@
 * when an actor receives a message, all he can do is:
     * create more actors
     * send messages to other actors
-    * decide what he gonna do with the next message it receives
+    * decide what it gonna do with the next message it receives
         * example: account balance - 5$, deposit 1$, now - account balance is 6$
         * what is a difference from creating a new actor: we expect that the old actor has up-to-date balance
 * each actor has an address, we can send messages to
-    * many-to-many
+    * many-to-many relationship
     * one address for a bunch of actors (ex. replicating behind the scenes)
     * one actor for many addresses
     * proxy/forwarding actor (forwards messages to other actors)
     * all you can do with an address is send it a message
 * actors can receive messages in any order
-    * packets in TCP can come in any order (sequence number to reconstruct in order)
-    * post in any country - you could get letters in any order
+    * analogy
+        * packets in TCP can come in any order (sequence number to reconstruct in order)
+        * post - you could get letters in any order
 * there are no channels
     * message will be delivered at most once
         * it could take a long time, like message in the bottle that floats over the see
     * no intermediaries
+        * but you could create an actor that acts like a channel
     * messages go directly
-    * you could create an actor that acts like a channel
-* processes one message at a time
-    * no concurrent access to their internal resources
-* messages are sent asynchronously (no need to wait for an answer — there isn’t one)
+    * messages are sent asynchronously (no need to wait for an answer — there isn’t one)
+* actor processes one message at a time
+    * no concurrent access to actor's internal resources
 * an actor system can be seen as a series of functional programs communicating with each other 
 through effects
 
@@ -77,31 +78,31 @@ through effects
 * for some tasks, the results of the subtasks may need to be reordered
     * the manager actor will probably send the results to a specific actor responsible 
     for rearrangement
-* Handling actor state mutation
-    * Actors can be stateless (immutable) or stateful
-        * their state can change according to the messages they receive
-        * example
-            * synchronizer actor reorders results of computations
-    * for example, a list of data that must go through heavy computation in order 
-    to provide a list of results
-        * mapping phase: It could be parallelized by breaking the list into several sublists and giving these 
-        sublists to worker actors for processing
-            * no guarantee that the worker actors will finish their jobs in the same order that those 
-            jobs were given to them
-        * solution - number the tasks 
-            * when a worker sends back the result, it adds the corresponding task number
-            * maybe priority queue
-                * automatic sorting
-                * makes possible to process the results as an asynchronous stream
-                    * receiver receives a result, it compares the task number to the expected number
-                        * if match - passes the result to the client and then looks into the priority queue to
-                        see if the first available result corresponds to the new expected task number
-                            * if there’s a match, the dequeuing process continues until there’s no longer 
-                            a match
-                        * if the received result doesn’t match the expected result number, it’s added to 
-                        the priority queue
-* behaviour of each actor is allowed to change
-    * is caused by a modification to the state of the actor, replacing the original behaviour with a new one
+    
+# actor state mutation
+* actors can be stateless (immutable) or stateful
+    * behaviour of each actor is allowed to change
+        * is caused by a modification to the state of the actor, replacing the original behaviour 
+        with a new one
+* example
+    * list of data that must go through heavy computation in order 
+to provide a list of results
+    * mapping phase: It could be parallelized by breaking the list into several sublists and giving these 
+    sublists to worker actors for processing
+        * no guarantee that the worker actors will finish their jobs in the same order that those 
+        jobs were given to them
+    * solution - number the tasks 
+        * when a worker sends back the result, it adds the corresponding task number
+        * maybe priority queue
+            * automatic sorting
+            * makes possible to process the results as an asynchronous stream
+                * receiver receives a result, it compares the task number to the expected number
+                    * if match - passes the result to the client and then looks into the priority queue to
+                    see if the first available result corresponds to the new expected task number
+                        * if there’s a match, the dequeuing process continues until there’s no longer 
+                        a match
+                    * if the received result doesn’t match the expected result number, it’s added to 
+                    the priority queue
 
 # actor framework implementation
 * four components:
