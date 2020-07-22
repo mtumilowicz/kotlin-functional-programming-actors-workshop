@@ -10,6 +10,29 @@
 * workshop are in `workshop` package, answers: `answers`
 
 # introduction
+
+
+# sharing mutable state
+* in a multithreaded program, how can you increment the counter in a safe way, avoiding 
+concurrent access?
+    * use locks or make operations atomic, or both
+    * simple analogy
+        * living on a desert island - if you’re the only inhabitant, there’s no need 
+        for locks on your doors
+* general solution: remove state mutation
+* single thread environment
+    * `function(oldState) returns (newState, result)`
+* multithreaded environment
+    * immutable data structures don’t help
+    * needs: mutable reference so that the new immutable data can replace the previous one
+* in functional programming - sharing resources has to be done as an effect
+    * every access to that resources treat as input/output (I/O)
+* sharing a mutable should be abstracted
+    * common technique: side effects as an implementation detail for a purely functional API
+        * side effects are not observable to code
+    * example: actor framework
+
+# actor
 * actor - fundamental unit of computation
 * actor has to embody 3 essentials elements of computations
     * processing - get something done
@@ -42,54 +65,29 @@
     * message will be delivered at most once
         * it could take a long time, like message in the bottle that floats over the see
     * no intermediaries
-    * messages goes directly
+    * messages go directly
     * you could create an actor that acts like a channel
 * processes one message at a time
-
-# sharing mutable state
-* general solution: remove state mutation
-* single thread environment
-    * `function(oldState) returns (newState, result)`
-* multithreaded environment
-    * immutable data structures don’t help
-    * needs: mutable reference so that the new immutable data can replace the previous one
-* example
-    * in a multithreaded program, how can you increment the counter in a safe way, avoiding 
-    concurrent access?
-        * use locks or make operations atomic, or both
-        * simple analogy
-            * living on a desert island
-            * if you’re the only inhabitant, there’s no need for locks on your doors
-* in functional programming - sharing resources has to be done as an effect
-    * every access to that resources treat as input/output (I/O)
-* sharing a mutable should be abstracted
-    * common technique: side effects as an implementation detail for a purely functional API
-        * side effects are not observable to code
-    * example: actor framework
-    
-# actor model
-* in the actor model, a multithreaded application is divided into single-threaded components, called actors 
-    * since each actor is single-threaded, it doesn’t need to share data using locks
-    * actors communicate with other actors by way of effects
-        * as if such communication were the I/O of messages
-        * messages are sent asynchronously (no need to wait for an answer — there isn’t one)
-    * actors process messages one at a time 
-        * no concurrent access to their internal resources
+    * no concurrent access to their internal resources
+* messages are sent asynchronously (no need to wait for an answer — there isn’t one)
 * an actor system can be seen as a series of functional programs communicating with each other 
 through effects
+
+# actor model
 * actor model allows tasks to be parallelized by using a manager actor
     * breaks the task into subtasks
     * distributes them to worker actors
     * no worker actor is ever idle until the list of subtasks is empty
         * if worker actor returns a result - it’s given a new subtask
 * for some tasks, the results of the subtasks may need to be reordered
-    * the manager actor will probably send the results to a specific actor responsible for rearrangement
+    * the manager actor will probably send the results to a specific actor responsible 
+    for rearrangement
 * Handling actor state mutation
     * Actors can be stateless (immutable) or stateful
         * their state can change according to the messages they receive
         * example
             * synchronizer actor reorders results of computations
-    * Imagine, for example, that you have a list of data that must go through heavy computation in order 
+    * for example, a list of data that must go through heavy computation in order 
     to provide a list of results
         * mapping phase: It could be parallelized by breaking the list into several sublists and giving these 
         sublists to worker actors for processing
@@ -107,7 +105,8 @@ through effects
                             a match
                         * if the received result doesn’t match the expected result number, it’s added to 
                         the priority queue
-
+* behaviour of each actor is allowed to change
+    * is caused by a modification to the state of the actor, replacing the original behaviour with a new one
 # actor framework implementation
 * four components:
     * `Actor`
@@ -128,26 +127,7 @@ through effects
     * no support for remote actors 
         * in a real actor system you can use actors that are running on different machines without 
         having to care about communication
-            * messages aren’t sent to actors but to actor references, proxies, or some other substitute
             * an ideal way to build scalable applications
-            
-* behaviour of an actor looks like an effect
-    * arguments: message to process and the sender
-* behaviour of each actor is allowed to change
-    * is caused by a modification to the state of the actor, replacing the original behaviour with a new one
-    
-# AbstractActor implementation
-* All the message management operations are common and
-  are provided by the actor framework, so that you’ll only have to implement the business part
-* actors are useful when multiple threads are supposed to share some mutable state
-    * when a thread produces the result of a computation, and this result must be passed to 
-    another thread for further processing
-    
-# Running a computation in parallel
-* application is composed of three kinds of actors
-    * Manager - creates a given number of worker actors and distributing the tasks to them
-    * several instances of workers
-    * client
 * main use of actors isn’t for parallelization, but for the abstraction of sharing a mutable state 
     * without actors, you’d have had to synchronize access to resources to handle concurrency
 * Actor is essentially a concurrent process that doesn’t constantly occupy a thread
@@ -158,4 +138,3 @@ through effects
 messaging the actor simultaneously
     * implementation needs to ensure that messages are processed only one at a time
         * all messages sent to the actor must be processed rather than queued indefinitely
-    
