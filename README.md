@@ -1,4 +1,4 @@
-
+[![Build Status](https://travis-ci.com/mtumilowicz/kotlin-functional-programming-actors-workshop.svg?branch=master)](https://travis-ci.com/mtumilowicz/kotlin-functional-programming-actors-workshop)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # kotlin-functional-programming-actors-workshop
@@ -11,6 +11,8 @@
 * goals of this workshop
     * introduction to actor model
 * workshop are in `workshop` package, answers: `answers`
+    * after implementing all workshop tasks run: `workshop.basic.TestRunWorkshop.kt` and 
+    `workshop.advanced.TestRunWorkshop.kt` to verify correctness
 
 ## introduction
 * sharing mutable state
