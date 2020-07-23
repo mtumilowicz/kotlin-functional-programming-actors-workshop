@@ -26,8 +26,13 @@
         * common technique: side effects as an implementation detail for a purely functional API
             * side effects are not observable to code
         * example: actor framework
-
+* main use of actors isn’t for parallelization, but for the abstraction of sharing 
+a mutable state 
+    * without actors - need to synchronize access to resources to handle concurrency
+    
 # actor
+* is essentially a concurrent process that doesn’t constantly occupy a thread
+    * occupies only when it receives a message
 * actor - fundamental unit of computation
 * actor has to embody 3 essentials elements of computations
     * processing - get something done
@@ -65,6 +70,7 @@
     * messages go directly
     * messages are sent asynchronously (no need to wait for an answer — there isn’t one)
 * actor processes one message at a time
+    * queueing other messages for subsequent processing
     * no concurrent access to actor's internal resources
 * an actor system can be seen as a series of functional programs communicating with each other 
 through effects
@@ -85,24 +91,16 @@ through effects
         * is caused by a modification to the state of the actor, replacing the original behaviour 
         with a new one
 * example
-    * list of data that must go through heavy computation in order 
-to provide a list of results
-    * mapping phase: It could be parallelized by breaking the list into several sublists and giving these 
-    sublists to worker actors for processing
-        * no guarantee that the worker actors will finish their jobs in the same order that those 
-        jobs were given to them
-    * solution - number the tasks 
-        * when a worker sends back the result, it adds the corresponding task number
-        * maybe priority queue
-            * automatic sorting
-            * makes possible to process the results as an asynchronous stream
-                * receiver receives a result, it compares the task number to the expected number
-                    * if match - passes the result to the client and then looks into the priority queue to
-                    see if the first available result corresponds to the new expected task number
-                        * if there’s a match, the dequeuing process continues until there’s no longer 
-                        a match
-                    * if the received result doesn’t match the expected result number, it’s added to 
-                    the priority queue
+    * list of data that must go through heavy computation
+        * break the list into several sublists
+        * give sublists to worker actors for processing
+        * no guarantee of results order - number the tasks 
+            * maybe priority queue
+                * automatic sorting
+                * similar to an asynchronous stream
+                    * compare the task number to the expected number
+                        * match - pass to client 
+                        * doesn't match - added to the priority queue
 
 # actor framework implementation
 * four components:
@@ -117,21 +115,10 @@ to provide a list of results
         * allows for searching for available actors
     * `MessageProcessor`
         * implement for any component that handles a received message
-* our implementation
-    * each actor is mapped to a single thread 
-        * in a real actor system, actors are mapped to pools of threads
-            * millions of actors run on a few dozen threads
-    * no support for remote actors 
-        * in a real actor system you can use actors that are running on different machines without 
-        having to care about communication
-            * an ideal way to build scalable applications
-* main use of actors isn’t for parallelization, but for the abstraction of sharing a mutable state 
-    * without actors, you’d have had to synchronize access to resources to handle concurrency
-* Actor is essentially a concurrent process that doesn’t constantly occupy a thread
-    * it only occupies a thread when it receives a message
-    * although multiple threads may be concurrently sending messages to an actor, the actor pro-
-    cesses only one message at a time, queueing other messages for subsequent processing
-* main trickiness in an actor implementation has to do with the fact that multiple threads may be 
-messaging the actor simultaneously
-    * implementation needs to ensure that messages are processed only one at a time
-        * all messages sent to the actor must be processed rather than queued indefinitely
+* each actor is mapped to a single thread 
+    * in a real system - mapped to pools of threads
+        * millions of actors run on a few dozen threads
+* no support for remote actors 
+    * in a real system - you can use actors (remote actors) that are running on different 
+    machines without having to care about communication
+        * an ideal way to build scalable applications
