@@ -1,15 +1,18 @@
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 # kotlin-functional-programming-actors-workshop
 * https://www.manning.com/books/the-joy-of-kotlin
 * https://github.com/pysaumont/fpinkotlin
 * [Actor Model Explained](https://www.youtube.com/watch?v=ELwEdb_pD0k)
 * [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know...)](https://www.youtube.com/watch?v=7erJ1DV_Tlo)
 
-# preface
+## preface
 * goals of this workshop
     * introduction to actor model
 * workshop are in `workshop` package, answers: `answers`
 
-# introduction
+## introduction
 * sharing mutable state
     * general solution: remove state mutation
     * single thread environment
@@ -30,7 +33,7 @@
 a mutable state 
     * without actors - need to synchronize access to resources to handle concurrency
     
-# actor
+## actor
 * is essentially a concurrent process that doesn’t constantly occupy a thread
     * occupies only when it receives a message
 * actor - fundamental unit of computation
@@ -75,7 +78,7 @@ a mutable state
 * an actor system can be seen as a series of functional programs communicating with each other 
 through effects
 
-# actor model
+## actor model
 * actor model allows tasks to be parallelized by using a manager actor
     * breaks the task into subtasks
     * distributes them to worker actors
@@ -85,7 +88,7 @@ through effects
     * the manager actor will probably send the results to a specific actor responsible 
     for rearrangement
     
-# actor state mutation
+## actor state mutation
 * actors can be stateless (immutable) or stateful
     * behaviour of each actor is allowed to change
         * is caused by a modification to the state of the actor, replacing the original behaviour 
@@ -102,7 +105,7 @@ through effects
                         * match - pass to client 
                         * doesn't match - added to the priority queue
 
-# actor framework implementation
+## actor framework implementation
 * four components:
     * `Actor`
         * determines the behaviour of an actor
