@@ -2,10 +2,11 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # kotlin-functional-programming-actors-workshop
-* https://www.manning.com/books/the-joy-of-kotlin
-* https://github.com/pysaumont/fpinkotlin
-* [Actor Model Explained](https://www.youtube.com/watch?v=ELwEdb_pD0k)
-* [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know...)](https://www.youtube.com/watch?v=7erJ1DV_Tlo)
+* references
+    * https://www.manning.com/books/the-joy-of-kotlin
+    * https://github.com/pysaumont/fpinkotlin
+    * [Actor Model Explained](https://www.youtube.com/watch?v=ELwEdb_pD0k)
+    * [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know...)](https://www.youtube.com/watch?v=7erJ1DV_Tlo)
 
 ## preface
 * goals of this workshop
