@@ -60,9 +60,8 @@ a mutable state
         * what is a difference from creating a new actor: we expect that the old actor has up-to-date balance
 * each actor has an address, we can send messages to
     * many-to-many relationship
-    * one address for a bunch of actors (ex. replicating behind the scenes)
-    * one actor for many addresses
-    * proxy/forwarding actor (forwards messages to other actors)
+        * one address for a bunch of actors (ex. replicating behind the scenes)
+        * one actor for many addresses
     * all you can do with an address is send it a message
 * actors can receive messages in any order
     * analogy
@@ -73,6 +72,7 @@ a mutable state
         * it could take a long time, like message in the bottle that floats over the see
     * no intermediaries
         * but you could create an actor that acts like a channel
+        * proxy/forwarding actor (forwards messages to other actors)
     * messages go directly
     * messages are sent asynchronously (no need to wait for an answer — there isn’t one)
 * actor processes one message at a time
@@ -100,13 +100,7 @@ through effects
     * list of data that must go through heavy computation
         * break the list into several sublists
         * give sublists to worker actors for processing
-        * no guarantee of results order - number the tasks 
-            * maybe priority queue
-                * automatic sorting
-                * similar to an asynchronous stream
-                    * compare the task number to the expected number
-                        * match - pass to client 
-                        * doesn't match - added to the priority queue
+        * no guarantee of results order - assign numbers to tasks 
 
 ## actor framework implementation
 * four components:
