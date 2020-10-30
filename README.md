@@ -7,6 +7,7 @@
     * https://github.com/pysaumont/fpinkotlin
     * [Actor Model Explained](https://www.youtube.com/watch?v=ELwEdb_pD0k)
     * [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know...)](https://www.youtube.com/watch?v=7erJ1DV_Tlo)
+    * https://www.manning.com/books/scala-in-action
 
 ## preface
 * goals of this workshop
@@ -54,6 +55,10 @@ a mutable state
         * resolve it with axioms
 * when an actor receives a message, all he can do is:
     * create more actors
+        * supervision context
+            * actor needs to supervise the actors it creates
+            * decides what should happen when components fail in the system
+                * can decide to restart an actor or take the actor out of service
     * send messages to other actors
     * decide what it gonna do with the next message it receives
         * example: account balance - 5$, deposit 1$, now - account balance is 6$
