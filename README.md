@@ -71,7 +71,7 @@ a mutable state
 * actors can receive messages in any order
     * analogy
         * packets in TCP can come in any order (sequence number to reconstruct in order)
-        * post - you could get letters in any order
+        * postbox - you could get letters in any order
 * there are no channels
     * message will be delivered at most once
         * it could take a long time, like message in the bottle that floats over the see
@@ -101,11 +101,6 @@ through effects
     * behaviour of each actor is allowed to change
         * is caused by a modification to the state of the actor, replacing the original behaviour 
         with a new one
-* example
-    * list of data that must go through heavy computation
-        * break the list into several sublists
-        * give sublists to worker actors for processing
-        * no guarantee of results order - assign numbers to tasks 
 
 ## actor framework implementation
 * four components:
