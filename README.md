@@ -8,6 +8,9 @@
     * [Actor Model Explained](https://www.youtube.com/watch?v=ELwEdb_pD0k)
     * [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know...)](https://www.youtube.com/watch?v=7erJ1DV_Tlo)
     * https://www.manning.com/books/scala-in-action
+    * https://github.com/evacchi/min-java-actors/blob/main/src/main/java/io/github/evacchi/TypedActor.java
+    * https://gist.github.com/viktorklang/2362563
+    * [Write You An Actor System For Great Good! with JBang, JDK 19, records, pattern matching and virtual](https://www.youtube.com/watch?v=TOL3zpn1vvQ)
 
 ## preface
 * goals of this workshop
