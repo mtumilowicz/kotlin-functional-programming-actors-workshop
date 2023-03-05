@@ -12,32 +12,30 @@ fun interface ActorRef<T> {
 
 class ActorSystem(val executor: ExecutorService) {
     fun <T> spawn(initial: (ActorRef<T>) -> Behaviour<T>): ActorRef<T> {
-        return object : ActorRef<T>, Runnable {
+        return object : ActorRef<T> {
             val isProcessing = AtomicBoolean()
 
-            val mbox = ConcurrentLinkedQueue<T>()
-            var behavior = initial(this)
+            val mailbox = ConcurrentLinkedQueue<T>()
+            var behaviour = initial(this)
             override fun tell(msg: T) {
-                mbox.offer(msg)
-                loop()
+                mailbox.offer(msg)
+                process()
             }
 
-            override fun run() {
+            fun run() {
                 try {
-                    if (isProcessing.get()) {
-                        val m = mbox.poll()
-                        if (m != null) behavior = behavior(m)
-                    }
+                    val m = mailbox.poll()
+                    if (m != null) behaviour = behaviour(m)
                 } finally {
                     isProcessing.set(false)
-                    loop()
+                    process()
                 }
             }
 
-            fun loop() {
-                if (!mbox.isEmpty() && isProcessing.compareAndSet(false, true)) {
+            fun process() {
+                if (!mailbox.isEmpty() && isProcessing.compareAndSet(false, true)) {
                     try {
-                        executor.execute(this)
+                        executor.execute { run() }
                     } catch (t: Throwable) {
                         isProcessing.set(false)
                         throw t
