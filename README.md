@@ -15,9 +15,9 @@
 ## preface
 * goals of this workshop
     * introduction to actor model
-* workshop are in `workshop` package, answers: `answers`
-    * after implementing all workshop tasks run: `workshop.basic.TestRunWorkshop.kt` and 
-    `workshop.advanced.TestRunWorkshop.kt` to verify correctness
+* workshop plan
+    1. implement simple actor system
+    2. use it to create ping-pong game 
 
 ## introduction
 * sharing mutable state
