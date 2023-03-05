@@ -1,19 +1,17 @@
-package answers.newactor
+package actor
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 
-interface TypedActor {
 
-    fun interface Behavior<T> : (T) -> Behavior<T>
+fun interface Behavior<T> : (T) -> Behavior<T>
     fun interface ActorRef<T> {
         fun tell(msg: T)
     }
 
-    class System(val executor: ExecutorService) {
-        fun <T> actorOf(initial: (ActorRef<T>) -> Behavior<T>): ActorRef<T> {
+    class ActorSystem(val executor: ExecutorService) {
+        fun <T> spawn(initial: (ActorRef<T>) -> Behavior<T>): ActorRef<T> {
             return object : ActorRef<T>, Runnable {
                 val isProcessing = AtomicBoolean()
 
@@ -51,8 +49,3 @@ interface TypedActor {
 
         fun shutdown() = executor.shutdown()
     }
-
-    companion object {
-        fun <T> Become(next: Behavior<T>): Behavior<T> = next
-    }
-}
