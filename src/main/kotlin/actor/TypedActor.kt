@@ -5,13 +5,13 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-fun interface Behavior<T> : (T) -> Behavior<T>
+fun interface Behaviour<T> : (T) -> Behaviour<T>
 fun interface ActorRef<T> {
     fun tell(msg: T)
 }
 
 class ActorSystem(val executor: ExecutorService) {
-    fun <T> spawn(initial: (ActorRef<T>) -> Behavior<T>): ActorRef<T> {
+    fun <T> spawn(initial: (ActorRef<T>) -> Behaviour<T>): ActorRef<T> {
         return object : ActorRef<T>, Runnable {
             val isProcessing = AtomicBoolean()
 
