@@ -118,6 +118,16 @@ through effects
                }
             }
             ```
+        * why behaviour cannot be `(T) -> Unit`?
+            * if you change type to unit and remove mutation of `behaviour` in ActorSystem, engine will create
+            new object for every invocation
+                ```
+                Behaviour { msg ->
+                    Player1(self) // here we are creating new object
+                        .behaviour(msg)
+                }
+                ```
+            * so we have to keep it like this `(T) -> Behaviour<T>` and return new behaviour from behaviour methods
     * `fun interface ActorRef<T> { fun tell(msg: T) }`
         * represents actor that you sent a message
     * `ActorSystem(val executor: ExecutorService)`
