@@ -2,12 +2,12 @@ package answers.newactor
 
 import java.util.concurrent.Executors
 
-class Ping(val sender: TypedActor.Address<Pong>)
+class Ping(val sender: TypedActor.ActorRef<Pong>)
 
-class Pong(val sender: TypedActor.Address<Ping>)
+class Pong(val sender: TypedActor.ActorRef<Ping>)
 
 class StatefulPonger(
-    val self: TypedActor.Address<Ping>,
+    val self: TypedActor.ActorRef<Ping>,
     var counter: Int = 0
 ) : TypedActor.Behavior<Ping> {
     override fun invoke(msg: Ping): TypedActor.Behavior<Ping> {
@@ -25,7 +25,7 @@ class StatefulPonger(
 
 fun main() {
 
-    fun pingerBehavior(self: TypedActor.Address<Pong>, msg: Pong): TypedActor.Behavior<Pong> {
+    fun pingerBehavior(self: TypedActor.ActorRef<Pong>, msg: Pong): TypedActor.Behavior<Pong> {
         println("pong! ⬅️")
         msg.sender.tell(Ping(self))
         return TypedActor.Behavior { m -> pingerBehavior(self, m) }
@@ -33,7 +33,7 @@ fun main() {
 
     var actorSystem = TypedActor.System(Executors.newCachedThreadPool())
     var ponger = actorSystem.actorOf { StatefulPonger(it) }
-    var pinger = actorSystem.actorOf { self: TypedActor.Address<Pong> ->
+    var pinger = actorSystem.actorOf { self: TypedActor.ActorRef<Pong> ->
         TypedActor.Behavior { msg ->
             pingerBehavior(
                 self,

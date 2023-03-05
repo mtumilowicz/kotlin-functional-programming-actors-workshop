@@ -7,13 +7,13 @@ import java.util.concurrent.atomic.AtomicInteger
 interface TypedActor {
 
     fun interface Behavior<T> : (T) -> Behavior<T>
-    fun interface Address<T> {
+    fun interface ActorRef<T> {
         fun tell(msg: T)
     }
 
     class System(val executor: ExecutorService) {
-        fun <T> actorOf(initial: (Address<T>) -> Behavior<T>): Address<T> {
-            return object : Address<T>, Runnable {
+        fun <T> actorOf(initial: (ActorRef<T>) -> Behavior<T>): ActorRef<T> {
+            return object : ActorRef<T>, Runnable {
                 val on: AtomicInteger = AtomicInteger(0)
 
                 // Our awesome little mailbox, free of blocking and evil
