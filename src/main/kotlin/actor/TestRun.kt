@@ -9,16 +9,16 @@ class Pong(val sender: ActorRef<Ping>)
 class StatefulPonger(
     val self: ActorRef<Ping>,
     var counter: Int = 0
-) : Behavior<Ping> {
-    override fun invoke(msg: Ping): Behavior<Ping> {
+) {
+     fun behaviour(msg: Ping): Behavior<Ping> {
         return if (counter < 10) {
             println("ping! ➡️")
             msg.sender.tell(Pong(self))
             this.counter++
-            this
+            Behavior { behaviour(it) }
         } else {
             println("ping! ☠️")
-            this
+            Behavior { behaviour(it) }
         }
     }
 }
@@ -32,7 +32,11 @@ fun main() {
     }
 
     var actorSystem = ActorSystem(Executors.newCachedThreadPool())
-    var ponger = actorSystem.spawn { StatefulPonger(it) }
+    var ponger = actorSystem.spawn { self: ActorRef<Ping> ->
+        Behavior { msg ->
+            StatefulPonger(self).behaviour(msg)
+        }
+    }
     var pinger = actorSystem.spawn { self: ActorRef<Pong> ->
         Behavior { msg ->
             pingerBehavior(

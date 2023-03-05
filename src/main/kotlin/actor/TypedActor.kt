@@ -6,46 +6,46 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 fun interface Behavior<T> : (T) -> Behavior<T>
-    fun interface ActorRef<T> {
-        fun tell(msg: T)
-    }
+fun interface ActorRef<T> {
+    fun tell(msg: T)
+}
 
-    class ActorSystem(val executor: ExecutorService) {
-        fun <T> spawn(initial: (ActorRef<T>) -> Behavior<T>): ActorRef<T> {
-            return object : ActorRef<T>, Runnable {
-                val isProcessing = AtomicBoolean()
+class ActorSystem(val executor: ExecutorService) {
+    fun <T> spawn(initial: (ActorRef<T>) -> Behavior<T>): ActorRef<T> {
+        return object : ActorRef<T>, Runnable {
+            val isProcessing = AtomicBoolean()
 
-                val mbox = ConcurrentLinkedQueue<T>()
-                var behavior = initial(this)
-                override fun tell(msg: T) {
-                    mbox.offer(msg)
+            val mbox = ConcurrentLinkedQueue<T>()
+            var behavior = initial(this)
+            override fun tell(msg: T) {
+                mbox.offer(msg)
+                loop()
+            }
+
+            override fun run() {
+                try {
+                    if (isProcessing.get()) {
+                        val m = mbox.poll()
+                        if (m != null) behavior = behavior(m)
+                    }
+                } finally {
+                    isProcessing.set(false)
                     loop()
                 }
+            }
 
-                override fun run() {
+            fun loop() {
+                if (!mbox.isEmpty() && isProcessing.compareAndSet(false, true)) {
                     try {
-                        if (isProcessing.get()) {
-                            val m = mbox.poll()
-                            if (m != null) behavior = behavior(m)
-                        }
-                    } finally {
+                        executor.execute(this)
+                    } catch (t: Throwable) {
                         isProcessing.set(false)
-                        loop()
-                    }
-                }
-
-                fun loop() {
-                    if (!mbox.isEmpty() && isProcessing.compareAndSet(false, true)) {
-                        try {
-                            executor.execute(this)
-                        } catch (t: Throwable) {
-                            isProcessing.set(false)
-                            throw t
-                        }
+                        throw t
                     }
                 }
             }
         }
-
-        fun shutdown() = executor.shutdown()
     }
+
+    fun shutdown() = executor.shutdown()
+}
