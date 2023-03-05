@@ -10,25 +10,25 @@ class StatefulPonger(
     val self: TypedActor.Address<Ping>,
     var counter: Int = 0
 ) : TypedActor.Behavior<Ping> {
-    override fun invoke(msg: Ping): TypedActor.Effect<Ping> {
+    override fun invoke(msg: Ping): TypedActor.Behavior<Ping> {
         return if (counter < 10) {
             println("ping! ➡️");
             msg.sender.tell(Pong(self))
             this.counter++
-            TypedActor.Stay()
+            TypedActor.Become(this)
         } else {
             println("ping! ☠️")
-            TypedActor.Stay()
+            TypedActor.Become(this)
         }
     }
 }
 
 fun main() {
 
-    fun pingerBehavior(self: TypedActor.Address<Pong>, msg: Pong): TypedActor.Effect<Pong> {
+    fun pingerBehavior(self: TypedActor.Address<Pong>, msg: Pong): TypedActor.Behavior<Pong> {
         println("pong! ⬅️")
         msg.sender.tell(Ping(self))
-        return TypedActor.Stay()
+        return TypedActor.Behavior { m -> pingerBehavior(self, m) }
     }
 
     var actorSystem = TypedActor.System(Executors.newCachedThreadPool())
@@ -42,5 +42,7 @@ fun main() {
         }
     }
     ponger.tell(Ping(pinger))
+    Thread.sleep(3_000)
+    actorSystem.shutdown()
 
 }
