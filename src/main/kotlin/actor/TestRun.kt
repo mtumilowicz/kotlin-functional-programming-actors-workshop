@@ -6,18 +6,18 @@ class Ping(val sender: ActorRef<Pong>)
 
 class Pong(val sender: ActorRef<Ping>)
 
-class StatefulPonger(
+class Player1(
     val self: ActorRef<Ping>,
     var counter: Int = 0
 ) {
      fun behaviour(msg: Ping): Behavior<Ping> {
         return if (counter < 10) {
-            println("ping! ➡️")
+            println("ping!")
             msg.sender.tell(Pong(self))
             this.counter++
             Behavior { behaviour(it) }
         } else {
-            println("ping! ☠️")
+            println("last ping!")
             Behavior { behaviour(it) }
         }
     }
@@ -25,27 +25,28 @@ class StatefulPonger(
 
 fun main() {
 
-    fun pingerBehavior(self: ActorRef<Pong>, msg: Pong): Behavior<Pong> {
-        println("pong! ⬅️")
+    fun player2(self: ActorRef<Pong>, msg: Pong): Behavior<Pong> {
+        println("pong!")
         msg.sender.tell(Ping(self))
-        return Behavior { m -> pingerBehavior(self, m) }
+        return Behavior { m -> player2(self, m) }
     }
 
-    var actorSystem = ActorSystem(Executors.newCachedThreadPool())
-    var ponger = actorSystem.spawn { self: ActorRef<Ping> ->
+    val actorSystem = ActorSystem(Executors.newCachedThreadPool())
+    val player1 = actorSystem.spawn { self: ActorRef<Ping> ->
         Behavior { msg ->
-            StatefulPonger(self).behaviour(msg)
+            Player1(self).behaviour(msg)
         }
     }
-    var pinger = actorSystem.spawn { self: ActorRef<Pong> ->
+    val player2 = actorSystem.spawn { self: ActorRef<Pong> ->
         Behavior { msg ->
-            pingerBehavior(
+            player2(
                 self,
                 msg
             )
         }
     }
-    ponger.tell(Ping(pinger))
+    player1.tell(Ping(player2))
+    Thread.sleep(3_000)
     actorSystem.shutdown()
 
 }
