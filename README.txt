@@ -106,22 +106,32 @@ through effects
         with a new one
 
 ## actor framework implementation
-* four components:
-    * `Actor`
-        * determines the behaviour of an actor
-    * `AbstractActor`
-         * contains all the stuff that’s common to all actors 
-        * will be extended by business actors
-    * `ActorContext`
-        * acts as a way to access actors
-        * in our case - will be minimalist and used primarily to access the actor state
-        * allows for searching for available actors
-    * `MessageProcessor`
-        * implement for any component that handles a received message
-* each actor is mapped to a single thread 
-    * in a real system - mapped to pools of threads
-        * millions of actors run on a few dozen threads
-* no support for remote actors 
-    * in a real system - you can use actors (remote actors) that are running on different 
-    machines without having to care about communication
-        * an ideal way to build scalable applications
+* components
+    * `Behaviour<T> : (T) -> Behaviour<T>`
+        * how actor behaves when it gets message `T`
+        * example
+            ```
+            fun behaviour(msg: MsgType): Behaviour<MsgType> {
+               return {
+                   // do something
+                   Behaviour { msg -> newBehaviour } // change behaviour
+               }
+            }
+            ```
+    * `fun interface ActorRef<T> { fun tell(msg: T) }`
+        * represents actor that you sent a message
+    * `ActorSystem(val executor: ExecutorService)`
+        * `fun <T> spawn(initial: (ActorRef<T>) -> Behaviour<T>): ActorRef<T>`
+            * creates actors and schedules them on executor
+    * `ActorRef` implementation
+        ```
+        val mailbox = ConcurrentLinkedQueue<T>()
+        var behaviour = initial(this)
+        override fun tell(msg: T) {
+            mailbox.offer(msg)
+            process()
+        }
+        ```
+        * `process` is CAS scheduler
+            * if mailbox is not empty and we are not processing anything => schedule and set flag
+
