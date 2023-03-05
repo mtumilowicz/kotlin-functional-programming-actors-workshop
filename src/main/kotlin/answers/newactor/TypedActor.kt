@@ -2,6 +2,7 @@ package answers.newactor
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 interface TypedActor {
@@ -14,38 +15,33 @@ interface TypedActor {
     class System(val executor: ExecutorService) {
         fun <T> actorOf(initial: (ActorRef<T>) -> Behavior<T>): ActorRef<T> {
             return object : ActorRef<T>, Runnable {
-                val on: AtomicInteger = AtomicInteger(0)
+                val isProcessing = AtomicBoolean()
 
-                // Our awesome little mailbox, free of blocking and evil
                 val mbox = ConcurrentLinkedQueue<T>()
                 var behavior = initial(this)
                 override fun tell(msg: T) {
-                    // Enqueue the message onto the mailbox and try to schedule for execution
                     mbox.offer(msg)
                     loop()
                 }
 
-                // Switch ourselves off, and then see if we should be rescheduled for execution
                 override fun run() {
                     try {
-                        if (on.get() == 1) {
+                        if (isProcessing.get()) {
                             val m = mbox.poll()
                             if (m != null) behavior = behavior(m)
                         }
                     } finally {
-                        on.set(0)
+                        isProcessing.set(false)
                         loop()
                     }
                 }
 
-                // If there's something to process, and we're not already scheduled
                 fun loop() {
-                    if (!mbox.isEmpty() && on.compareAndSet(0, 1)) {
-                        // Schedule to run on the Executor and back out on failure
+                    if (!mbox.isEmpty() && isProcessing.compareAndSet(false, true)) {
                         try {
                             executor.execute(this)
                         } catch (t: Throwable) {
-                            on.set(0)
+                            isProcessing.set(false)
                             throw t
                         }
                     }
