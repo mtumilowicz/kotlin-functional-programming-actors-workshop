@@ -11,6 +11,7 @@
     * https://github.com/evacchi/min-java-actors/blob/main/src/main/java/io/github/evacchi/TypedActor.java
     * https://gist.github.com/viktorklang/2362563
     * [Write You An Actor System For Great Good! with JBang, JDK 19, records, pattern matching and virtual](https://www.youtube.com/watch?v=TOL3zpn1vvQ)
+    * [Greg Young — A Decade of DDD, CQRS, Event Sourcing](https://www.youtube.com/watch?v=LDW0QWie21s)
 
 ## preface
 * goals of this workshop
@@ -95,6 +96,7 @@ through effects
     * distributes them to worker actors
     * no worker actor is ever idle until the list of subtasks is empty
         * if worker actor returns a result - it’s given a new subtask
+* actors are process manager frameworks
 * for some tasks, the results of the subtasks may need to be reordered
     * the manager actor will probably send the results to a specific actor responsible 
     for rearrangement
